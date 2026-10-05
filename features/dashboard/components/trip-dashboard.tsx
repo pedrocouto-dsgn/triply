@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
+import { BarList, chartColors, ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon, travelModeIcons, type IconName } from "@/components/ui/icons";
-import { Badge, IconBadge, StatTile, type Tone } from "@/components/ui/page";
+import { IconBadge, StatTile, type Tone } from "@/components/ui/page";
+import { categoryTotals, expenseRows } from "@/features/finance/budget";
 import type { PlaceImage } from "@/features/media/types";
 import { checklistCategoryLabels } from "@/features/planning/labels";
 import { RouteCarousel } from "@/features/route/components/route-carousel";
@@ -13,10 +14,9 @@ import { buildAttention, financialHealth, routeContext, upcomingItinerary } from
 import type { DashboardData, SectionResult } from "../types";
 
 const travelModeLabels = { plane: "Avião", train: "Comboio", bus: "Autocarro", car: "Carro", ferry: "Ferry", other: "Outro" };
-const healthLabels = { no_budget: "Sem orçamento definido", within_budget: "Dentro do orçamento", near_budget: "Próximo do orçamento", over_budget: "Acima do orçamento" };
+const healthLabels = { no_budget: "Defina o objetivo", within_budget: "Gastos dentro do objetivo", near_budget: "Gastos perto do objetivo", over_budget: "Gastos acima do objetivo" };
 const healthTones: Record<keyof typeof healthLabels, Tone> = { no_budget: "neutral", within_budget: "success", near_budget: "warning", over_budget: "danger" };
 const money = (value: bigint | null, currency: DashboardData["trip"]["baseCurrency"]) => formatMinorUnits(value?.toString() ?? null, currency) ?? "—";
-const max0 = (value: bigint) => (value > 0n ? value : 0n);
 
 export function TripDashboard({ dashboard, today, images = {} }: {
   dashboard: DashboardData;
@@ -42,17 +42,14 @@ export function TripDashboard({ dashboard, today, images = {} }: {
     <Link href={cta.href} className="group mb-4 flex items-center gap-4 rounded-card bg-primary p-4 text-primary-foreground sm:p-5"><span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-black/10"><Icon name="sparkles" size={20} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide opacity-70">Próximo passo</span><span className="block text-lg font-semibold">{cta.label}</span></span><span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-black/10 transition-transform group-hover:translate-x-1"><Icon name="arrowRight" size={18} /></span></Link>
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <StatTile icon="mapPin" label="Destinos" value={route?.stopCount ?? "—"} hint={route ? `${route.countryCount} ${route.countryCount === 1 ? "país" : "países"}` : undefined} />
-      <StatTile icon="wallet" tone={healthTones[health]} label="Orçamento" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Não definido"} hint={healthLabels[health]} />
-      <StatTile icon="piggy" tone="success" label="Financiado" value={savings?.targetMinor != null ? `${Math.round(progressPercent)}%` : "—"} hint={savings?.targetMinor != null ? `${money(savings.totalFundedMinor, trip.baseCurrency)} de ${money(savings.targetMinor, trip.baseCurrency)}` : "Sem objetivo"} />
+      <StatTile icon="compass" tone={healthTones[health]} label="Objetivo" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Por definir"} hint={healthLabels[health]} />
+      <StatTile icon="piggy" tone="success" label="Já temos" value={savings ? money(savings.totalFundedMinor, trip.baseCurrency) : "—"} hint={savings?.targetMinor != null ? `${Math.round(progressPercent)}% do objetivo` : "Guardado + pago"} />
       <StatTile icon="calendar" tone="neutral" label="Atividades" value={dashboard.itinerary.status === "ready" ? dashboard.itinerary.data.filter((item) => item.status === "active").length : "—"} hint={`${upcoming.length ? "próximas planeadas" : "no itinerário"}`} />
     </div>
 
     <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-      <Card title="Finanças" icon="wallet" href={`/trips/${trip.id}/finance`} result={dashboard.finance}>{dashboard.finance.status === "ready" ? <FinanceSummary dashboard={dashboard} health={health} /> : null}</Card>
-      <Card title="Poupança" icon="piggy" href={`/trips/${trip.id}/savings`} result={dashboard.savings}>{savings?.targetMinor !== null && savings ? <div className="flex flex-wrap items-center gap-6">
-        <RingProgress percent={progressPercent} label="Progresso do financiamento" size={140}><span className="text-2xl font-semibold tabular-nums">{Math.round(progressPercent)}%</span><span className="text-xs text-muted-foreground">financiado</span></RingProgress>
-        <div className="min-w-0 flex-1"><p className="font-semibold">{savings.state === "fully_funded" || savings.state === "overfunded" ? "Objetivo financiado" : "Progresso do financiamento"}</p><dl className="mt-3 grid grid-cols-2 gap-3"><Metric label="Objetivo" value={money(savings.targetMinor, trip.baseCurrency)} /><Metric label="Financiado" value={money(savings.totalFundedMinor, trip.baseCurrency)} /><Metric label="Por financiar" value={money(savings.remainingMinor, trip.baseCurrency)} /><Metric label="Ritmo mensal" value={money(savings.monthlyPaceMinor, trip.baseCurrency)} /></dl></div>
-      </div> : dashboard.savings.status === "ready" ? <p className="text-muted-foreground">Defina um orçamento ou previsão para criar um objetivo de poupança.</p> : null}</Card>
+      <Card title="Orçamento" icon="wallet" href={`/trips/${trip.id}/finance`} linkLabel="Editar" result={dashboard.finance}>{dashboard.finance.status === "ready" ? <BudgetGlance dashboard={dashboard} /> : null}</Card>
+      <Card title="Gastos por categoria" icon="ticket" href={`/trips/${trip.id}/finance#categories-title`} linkLabel="Adicionar" result={dashboard.finance}>{dashboard.finance.status === "ready" ? <CategoryGlance dashboard={dashboard} /> : null}</Card>
     </div>
 
     <Card title="Rota" icon="route" href={`/trips/${trip.id}/route`} linkLabel="Ver rota completa" result={dashboard.route} className="mt-4">{route?.stopCount ? <>
@@ -103,30 +100,31 @@ export function TripDashboard({ dashboard, today, images = {} }: {
   </>;
 }
 
-function FinanceSummary({ dashboard, health }: { dashboard: DashboardData; health: keyof typeof healthLabels }) {
+function BudgetGlance({ dashboard }: { dashboard: DashboardData }) {
   if (dashboard.finance.status !== "ready") return null;
-  const { trip } = dashboard, totals = dashboard.finance.data.totals;
+  const { trip } = dashboard;
+  const calculation = dashboard.savings.status === "ready" ? dashboard.savings.data?.calculation ?? null : null;
+  const forecast = expenseRows(dashboard.finance.data.data).reduce((sum, row) => sum + row.valueMinor, 0n);
   const target = trip.targetBudgetMinor === null ? null : BigInt(trip.targetBudgetMinor);
-  const segments = [
-    { label: "Pago", value: Number(totals.paid), display: money(totals.paid, trip.baseCurrency), color: "var(--chart-1)" },
-    { label: "Comprometido por pagar", value: Number(max0(totals.committed - totals.paid)), display: money(max0(totals.committed - totals.paid), trip.baseCurrency), color: "var(--chart-2)" },
-    { label: "Previsto por reservar", value: Number(max0(totals.forecast - totals.committed)), display: money(max0(totals.forecast - totals.committed), trip.baseCurrency), color: "var(--chart-4)" },
-    ...(target !== null ? [{ label: "Margem no orçamento", value: Number(max0(target - totals.forecast)), display: money(max0(target - totals.forecast), trip.baseCurrency), color: "var(--chart-7)" }] : []),
-  ];
-  const usage = target && target > 0n ? Math.round(Number((totals.forecast * 1000n) / target) / 10) : null;
-  return <>
-    <div className="flex flex-wrap items-center gap-6">
-      <DonutChart size={168} label={`Distribuição financeira: ${segments.map((segment) => `${segment.label} ${segment.display}`).join(", ")}`} segments={segments} center={usage !== null ? <><span className="text-2xl font-semibold tabular-nums">{usage}%</span><span className="text-xs text-muted-foreground">previsto</span></> : <><span className="text-xs text-muted-foreground">Previsão</span><span className="text-sm font-semibold">{money(totals.forecast, trip.baseCurrency)}</span></>} />
-      <div className="min-w-0 flex-1 space-y-4"><Badge tone={healthTones[health]}>{healthLabels[health]}</Badge><ChartLegend segments={segments} /></div>
-    </div>
-    <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-5 sm:grid-cols-5">
-      <Metric label="Orçamento" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Não definido"} />
-      <Metric label="Previsão" value={money(totals.forecast, trip.baseCurrency)} />
-      <Metric label="Comprometido" value={money(totals.committed, trip.baseCurrency)} />
-      <Metric label="Pago" value={money(totals.paid, trip.baseCurrency)} />
-      <Metric label="Real" value={money(totals.actual, trip.baseCurrency)} />
+  const goal = target ?? (forecast > 0n ? forecast : null);
+  const have = calculation ? calculation.currentAvailableMinor + calculation.eligiblePaidMinor : 0n;
+  const missing = goal === null ? null : goal > have ? goal - have : 0n;
+  const percent = goal && goal > 0n ? Math.min(Number((have * 1000n) / goal) / 10, 100) : 0;
+  return <div className="flex flex-wrap items-center gap-6">
+    <RingProgress percent={percent} size={140} label="Parte do objetivo já garantida"><span className="text-2xl font-semibold tabular-nums">{Math.round(percent)}%</span><span className="text-xs text-muted-foreground">garantido</span></RingProgress>
+    <dl className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
+      <Metric label="Objetivo" value={target === null ? "Por definir" : money(target, trip.baseCurrency)} />
+      <Metric label="Já temos" value={money(have, trip.baseCurrency)} />
+      <Metric label="Falta" value={missing === null ? "—" : money(missing, trip.baseCurrency)} />
     </dl>
-  </>;
+  </div>;
+}
+
+function CategoryGlance({ dashboard }: { dashboard: DashboardData }) {
+  if (dashboard.finance.status !== "ready") return null;
+  const totals = categoryTotals(dashboard.finance.data.data).filter((item) => item.totalMinor > 0n);
+  if (!totals.length) return <EmptyLine icon="wallet">Ainda não há gastos. Adicione hospedagem, passagens ou passeios no Orçamento.</EmptyLine>;
+  return <BarList items={totals.slice(0, 5).map((item, index) => ({ label: item.category.name, value: Number(item.totalMinor), display: money(item.totalMinor, dashboard.trip.baseCurrency), color: chartColors[index % chartColors.length] }))} />;
 }
 
 function DonutBlock({ label, segments, total, unit }: { label: string; segments: { label: string; value: number; color: string }[]; total: number; unit: string }) {

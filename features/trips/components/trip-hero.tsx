@@ -23,11 +23,11 @@ export async function getTripCover(tripId: string): Promise<PlaceImage | null> {
 }
 
 /** Shared full-width banner for every trip page. */
-export async function TripHero({ trip, active, title, eyebrow, description, actions, cover, today, size = "md" }: { trip: Trip; active: TripTab; title?: ReactNode; eyebrow?: ReactNode; description?: ReactNode; actions?: ReactNode; cover?: PlaceImage | null; today?: string; size?: "sm" | "md" | "lg" }) {
-  const image = cover === undefined ? await getTripCover(trip.id) : cover;
+export async function TripHero({ trip, active, title, eyebrow, description, actions, cover, today, size = "md", backdrop }: { trip: Trip; active: TripTab; title?: ReactNode; eyebrow?: ReactNode; description?: ReactNode; actions?: ReactNode; cover?: PlaceImage | null; today?: string; size?: "sm" | "md" | "lg"; backdrop?: ReactNode }) {
+  const image = backdrop ? null : cover === undefined ? await getTripCover(trip.id) : cover;
   const days = calendarDaysBetween(trip.startDate, trip.endDate) + 1;
   const countdown = today ? calendarDaysBetween(today, trip.startDate) : null;
-  return <PageHero seed={trip.name} image={image} size={size}
+  return <PageHero seed={trip.name} image={image} backdrop={backdrop} size={size}
     back={active === "overview" ? { href: "/trips", label: "Todas as viagens" } : { href: `/trips/${trip.id}`, label: trip.name }}
     eyebrow={eyebrow ?? <><Icon name="calendar" size={14} />{formatTripDateRange(trip.startDate, trip.endDate)}</>}
     title={title ?? trip.name}

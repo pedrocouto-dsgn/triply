@@ -1,6 +1,6 @@
 # SPEC — Module 05: Savings Plan
 
-Version: 1.0  
+Version: 1.1  
 Status: APPROVED
 Module ID: `05-savings-plan`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `spec/04-budget-expenses.md`, `AGENTS.md`, `docs/adr/ADR-002-money-and-currency.md`  
@@ -1168,3 +1168,10 @@ Overfunding displays surplus but never automatically raises target budget or for
 ### D-05-12 — Planner is advisory
 
 Triply does not recommend loans, investments or financial products and must not frame saving pace as individualized financial advice.
+
+
+---
+
+## Amendment — Savings simplification (owner request, 2026-10-05)
+
+- The savings page uses the same three editable cards as the budget (Objetivo, Já temos = guardado + pago, Falta) and the suggested pace per month, week and day until departure. The calculation rules are unchanged.

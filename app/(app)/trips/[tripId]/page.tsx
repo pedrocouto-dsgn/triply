@@ -19,7 +19,7 @@ export default async function TripPage({ params }: { params: Promise<{ tripId: s
   const stops = dashboard.route.status === "ready" ? dashboard.route.data.stops : [];
   const images = await resolveStopImages(stops).catch((): Record<string, PlaceImage> => ({}));
   const cover = stops[0] ? images[stops[0].id] ?? null : null;
-  return <PageContainer hero={<TripHero trip={dashboard.trip} active="overview" cover={cover} today={today} size="lg" actions={<><Link href={`/trips/${tripId}/edit`} className={button.glass}><Icon name="pencil" size={16} />Editar viagem</Link><Link href={`/trips/${tripId}/route`} className={button.primary}><Icon name="route" size={16} />Rota e destinos</Link></>} />}>
+  return <PageContainer hero={<TripHero trip={dashboard.trip} active="overview" cover={cover} today={today} size="lg" actions={<><Link href={`/trips/${tripId}/cover`} className={button.glass}><Icon name="image" size={16} />Alterar capa</Link><Link href={`/trips/${tripId}/edit`} className={button.glass}><Icon name="pencil" size={16} />Editar viagem</Link><Link href={`/trips/${tripId}/route`} className={button.primary}><Icon name="route" size={16} />Rota e destinos</Link></>} />}>
     <TripDashboard dashboard={dashboard} today={today} images={images} />
   </PageContainer>;
 }

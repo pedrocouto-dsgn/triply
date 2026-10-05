@@ -1,0 +1,64 @@
+import type { Coordinates } from "@/features/media/geocode";
+
+// Static route map with no dependency: OpenStreetMap tiles (darkened with a CSS filter to
+// match the theme) rendered in an SVG, plus numbered pins and a dashed route line. Two layouts are drawn so
+// pins stay visible on both wide banners and narrow phones.
+export type MapPoint = Coordinates & { label: string; number: number };
+
+const TILE = 256;
+const project = (point: Coordinates, zoom: number) => {
+  const scale = TILE * 2 ** zoom, sin = Math.sin((point.lat * Math.PI) / 180);
+  return { x: ((point.lon + 180) / 360) * scale, y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * scale };
+};
+
+type Layout = { width: number; height: number; area: { x0: number; x1: number; y0: number; y1: number } };
+const desktop: Layout = { width: 1600, height: 560, area: { x0: 0.42, x1: 0.94, y0: 0.14, y1: 0.7 } };
+const mobile: Layout = { width: 760, height: 760, area: { x0: 0.12, x1: 0.88, y0: 0.14, y1: 0.55 } };
+
+function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: Layout; className: string }) {
+  const { width, height, area } = layout;
+  const boxW = (area.x1 - area.x0) * width, boxH = (area.y1 - area.y0) * height;
+  let zoom = 3;
+  for (let z = 11; z >= 2; z -= 1) {
+    const projected = points.map((point) => project(point, z));
+    const spanX = Math.max(...projected.map((p) => p.x)) - Math.min(...projected.map((p) => p.x));
+    const spanY = Math.max(...projected.map((p) => p.y)) - Math.min(...projected.map((p) => p.y));
+    if (spanX <= boxW && spanY <= boxH) { zoom = points.length === 1 ? Math.min(z, 6) : z; break; }
+  }
+  const projected = points.map((point) => project(point, zoom));
+  const minX = Math.min(...projected.map((p) => p.x)), maxX = Math.max(...projected.map((p) => p.x));
+  const minY = Math.min(...projected.map((p) => p.y)), maxY = Math.max(...projected.map((p) => p.y));
+  // World pixel at the top-left corner of the viewBox, so the points' centre lands in the target area.
+  const originX = (minX + maxX) / 2 - ((area.x0 + area.x1) / 2) * width;
+  const originY = (minY + maxY) / 2 - ((area.y0 + area.y1) / 2) * height;
+  const tiles: { x: number; y: number; href: string }[] = [];
+  const count = 2 ** zoom;
+  for (let tx = Math.floor(originX / TILE); tx <= Math.floor((originX + width) / TILE); tx += 1) {
+    for (let ty = Math.floor(originY / TILE); ty <= Math.floor((originY + height) / TILE); ty += 1) {
+      if (ty < 0 || ty >= count) continue;
+      const wrapped = ((tx % count) + count) % count;
+      tiles.push({ x: tx * TILE - originX, y: ty * TILE - originY, href: `https://tile.openstreetmap.org/${zoom}/${wrapped}/${ty}.png` });
+    }
+  }
+  const pins = projected.map((p) => ({ x: p.x - originX, y: p.y - originY }));
+  const scale = width / 800;
+  return <svg aria-hidden="true" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" className={className}>
+    <rect width={width} height={height} fill="#0f1215" />
+    <g style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6)" }}>{tiles.map((tile) => <image key={`${tile.x}-${tile.y}`} href={tile.href} x={tile.x} y={tile.y} width={TILE} height={TILE} />)}</g>
+    {pins.length > 1 ? <polyline points={pins.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="var(--primary)" strokeWidth={2.5 * scale} strokeDasharray={`${8 * scale} ${7 * scale}`} strokeLinecap="round" strokeLinejoin="round" opacity="0.9" /> : null}
+    {pins.map((pin, index) => <g key={index} transform={`translate(${pin.x} ${pin.y})`}>
+      <circle r={22 * scale} fill="var(--primary)" opacity="0.18" />
+      <circle r={13 * scale} fill="var(--primary)" stroke="#111315" strokeWidth={3 * scale} />
+      <text textAnchor="middle" dominantBaseline="central" fontSize={12 * scale} fontWeight="700" fill="#10140a">{points[index].number}</text>
+      <text x={20 * scale} y={1 * scale} dominantBaseline="central" fontSize={14 * scale} fontWeight="600" fill="#f5f7f2" stroke="#111315" strokeWidth={4 * scale} paintOrder="stroke">{points[index].label}</text>
+    </g>)}
+  </svg>;
+}
+
+export function RouteMap({ points }: { points: MapPoint[] }) {
+  return <div role="img" aria-label={`Mapa da rota: ${points.map((point) => `${point.number}. ${point.label}`).join(", ")}`} className="absolute inset-0">
+    <MapLayer points={points} layout={desktop} className="absolute inset-0 hidden size-full sm:block" />
+    <MapLayer points={points} layout={mobile} className="absolute inset-0 size-full sm:hidden" />
+    <p className="absolute bottom-2 right-3 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white/70 backdrop-blur">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">contribuidores do OpenStreetMap</a></p>
+  </div>;
+}

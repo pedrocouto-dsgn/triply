@@ -31,7 +31,7 @@ export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
       eyebrow={<><Icon name="sparkles" size={14} />Planeie. Organize. Parta.</>} title="As suas viagens"
       description={<>Próxima: <strong className="font-semibold text-foreground">{featured.name}</strong> · {formatTripDateRange(featured.startDate, featured.endDate)}</>}
       meta={<HeroChip icon="clock">{countdownText(featured, today)}</HeroChip>}
-      actions={<><Link href={`/trips/${featured.id}`} className={button.glass}>Abrir viagem <Icon name="arrowRight" size={16} /></Link><Link href="/trips/new" className={button.primary}><Icon name="plus" size={16} />Nova viagem</Link></>} /> : undefined}>
+      actions={<><Link href={`/trips/${featured.id}/cover`} className={button.glass}><Icon name="image" size={16} />Alterar capa</Link><Link href={`/trips/${featured.id}`} className={button.glass}>Abrir viagem <Icon name="arrowRight" size={16} /></Link><Link href="/trips/new" className={button.primary}><Icon name="plus" size={16} />Nova viagem</Link></>} /> : undefined}>
       <TripsPageHeader identity={identity} />
       <div className="mt-6 empty:hidden"><StatusMessage kind={status} /></div>
       {trips.length === 0 ? <section className="mt-6">

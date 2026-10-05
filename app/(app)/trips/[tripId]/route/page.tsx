@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/ui/icons";
 import { button, PageContainer } from "@/components/ui/page";
+import { RouteMap } from "@/components/ui/route-map";
+import { geocodeStops, type Coordinates } from "@/features/media/geocode";
 import { RouteOverview } from "@/features/route/components/overview";
 import { RouteStatus } from "@/features/route/components/status";
 import type { PlaceImage } from "@/features/media/types";
@@ -18,7 +20,10 @@ export default async function RoutePage({ params, searchParams }: { params: Prom
   if (!trip || !route) notFound();
   const images = await resolveStopImages(route.stops).catch((): Record<string, PlaceImage> => ({}));
   const cover = route.stops[0] ? images[route.stops[0].id] ?? null : null;
-  return <PageContainer hero={<TripHero trip={trip} active="route" cover={cover} title="Rota e destinos" description={`${route.stops.length} ${route.stops.length === 1 ? "destino" : "destinos"} pela ordem da viagem, com os trajetos entre eles.`} actions={<Link href={`/trips/${tripId}/destinations/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar destino</Link>} />}>
+  const ordered = [...route.stops].sort((a, b) => a.position - b.position);
+  const coordinates = await geocodeStops(ordered).catch((): Record<string, Coordinates> => ({}));
+  const points = ordered.map((stop, index) => ({ stop, number: index + 1 })).filter(({ stop }) => coordinates[stop.id]).map(({ stop, number }) => ({ ...coordinates[stop.id], label: stop.placeName, number }));
+  return <PageContainer hero={<TripHero trip={trip} active="route" cover={cover} size="lg" backdrop={points.length ? <RouteMap points={points} /> : undefined} title="Rota e destinos" description={`${route.stops.length} ${route.stops.length === 1 ? "destino" : "destinos"} pela ordem da viagem, com os trajetos entre eles.`} actions={<Link href={`/trips/${tripId}/destinations/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar destino</Link>} />}>
     <RouteStatus query={query} />
     <RouteOverview trip={trip} route={route} images={images} />
   </PageContainer>;

@@ -29,8 +29,9 @@ export function RouteCarousel({ tripId, stops, legs, images, originLabel, return
         <button type="button" onClick={() => open(stop)} aria-haspopup="dialog" aria-label={`Ver detalhes de ${stop.placeName}`} className={`group relative block h-52 w-60 overflow-hidden rounded-3xl border text-left transition-transform hover:-translate-y-0.5 ${currentStopId === stop.id ? "border-primary" : "border-border hover:border-primary/60"}`}>
           <DestinationImage seed={stop.placeName} image={images[stop.id]} className="absolute inset-0"><div className="flex h-full flex-col justify-between p-4 text-white"><div className="flex items-center justify-between gap-2"><span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{position + 1}</span>{currentStopId === stop.id ? <span className="rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold backdrop-blur">Agora</span> : <span className="rounded-full bg-black/40 p-1.5 opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"><Icon name="arrowUpRight" size={14} /></span>}</div><div><p className="truncate text-lg font-light">{stop.placeName}</p><p className="truncate text-xs text-white/75">{stop.countryName} · {formatTripDate(stop.arrivalDate)} · {nightsBetween(stop.arrivalDate, stop.departureDate)} noites</p></div></div></DestinationImage>
         </button>
-        {position < stops.length - 1 || returnLabel ? <Connector leg={activeLegs.find((leg) => leg.fromStopId === stop.id)} /> : null}
+        {position < stops.length - 1 ? <Connector leg={activeLegs.find((leg) => leg.fromStopId === stop.id)} add={{ href: `/trips/${tripId}/destinations/new?after=${stop.id}`, label: `Adicionar destino entre ${stop.placeName} e ${stops[position + 1].placeName}` }} /> : null}
       </li>)}
+      <li className="flex items-center gap-3">{stops.length ? <Connector leg={undefined} /> : null}<Link href={`/trips/${tripId}/destinations/new${stops.length ? `?after=${stops[stops.length - 1].id}` : ""}`} className="flex h-52 w-44 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-input bg-surface text-center text-sm font-medium text-muted-foreground hover:border-primary hover:text-foreground"><span className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"><Icon name="plus" size={20} /></span>Adicionar destino{stops.length ? <span className="px-4 text-xs font-normal">depois de {stops[stops.length - 1].placeName}</span> : null}</Link>{returnLabel ? <Connector leg={activeLegs.find((leg) => leg.toKind === "return_boundary")} /> : null}</li>
       {returnLabel ? <li><Boundary label={returnLabel} caption="Regresso" /></li> : null}
     </ol>
 
@@ -66,7 +67,13 @@ function Boundary({ label, caption }: { label: string; caption: string }) {
   return <div className="flex h-52 w-36 flex-col justify-center rounded-3xl border border-dashed border-border bg-surface p-4"><Icon name="home" size={18} className="text-link" /><p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">{caption}</p><p className="mt-1 truncate font-semibold">{label}</p></div>;
 }
 
-function Connector({ leg }: { leg?: TravelLeg }) {
-  const label = leg ? modes[leg.mode] : "Transporte por planear";
-  return <span className="flex shrink-0 items-center gap-1 text-muted-foreground"><span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" /><span title={label} className={`flex size-9 items-center justify-center rounded-full border ${leg ? "border-primary/40 bg-primary-muted text-link" : "border-dashed border-input"}`}><Icon name={leg ? travelModeIcons[leg.mode] : "plus"} size={15} /><span className="sr-only">{label}</span></span><span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" /></span>;
+function Connector({ leg, add }: { leg?: TravelLeg; add?: { href: string; label: string } }) {
+  return <span className="flex shrink-0 items-center gap-1 text-muted-foreground">
+    <span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" />
+    <span className="flex flex-col items-center gap-2">
+      {leg ? <span title={`Transporte: ${modes[leg.mode]}`} className="flex size-8 items-center justify-center rounded-full border border-primary/40 bg-primary-muted text-link"><Icon name={travelModeIcons[leg.mode]} size={14} /><span className="sr-only">Transporte: {modes[leg.mode]}</span></span> : null}
+      {add ? <Link href={add.href} aria-label={add.label} title={add.label} className="flex size-9 items-center justify-center rounded-full border border-dashed border-input bg-surface hover:border-primary hover:bg-primary hover:text-primary-foreground"><Icon name="plus" size={15} /></Link> : null}
+    </span>
+    <span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" />
+  </span>;
 }

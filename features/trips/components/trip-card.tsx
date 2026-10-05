@@ -16,14 +16,14 @@ export function countdownText(trip: Trip, today: string): string {
   return today <= trip.endDate ? "A decorrer" : "Concluída";
 }
 
-export function TripCard({ trip, today, image }: { trip: Trip; today: string; image?: PlaceImage | null }) {
+export function TripCard({ trip, today, image, showCoverEdit = true }: { trip: Trip; today: string; image?: PlaceImage | null; showCoverEdit?: boolean }) {
   const lifecycle = deriveTripLifecycle(trip, today);
   const budget = formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency);
   const nights = calendarDaysBetween(trip.startDate, trip.endDate);
   return <article className="group flex h-full flex-col overflow-hidden rounded-card border border-border bg-card transition-colors hover:border-primary/50">
     <DestinationImage seed={trip.name} image={image} className="h-48">
       <div className="flex h-full flex-col justify-between p-4 text-white">
-        <div className="flex items-start justify-between gap-2"><span className="rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold backdrop-blur">{lifecycleLabels[lifecycle]}</span>{lifecycle === "upcoming" || lifecycle === "ongoing" ? <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">{countdownText(trip, today)}</span> : null}</div>
+        <div className="flex items-start justify-between gap-2"><span className="flex flex-wrap gap-1.5"><span className="rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold backdrop-blur">{lifecycleLabels[lifecycle]}</span>{lifecycle === "upcoming" || lifecycle === "ongoing" ? <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">{countdownText(trip, today)}</span> : null}</span>{showCoverEdit ? <Link href={`/trips/${trip.id}/cover`} aria-label={`Alterar capa de ${trip.name}`} title="Alterar capa" className="flex size-9 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur hover:bg-black/65"><Icon name="image" size={15} /></Link> : null}</div>
         <h3 className="break-words text-2xl font-light tracking-tight drop-shadow"><Link className="hover:text-white/85" href={`/trips/${trip.id}`}>{trip.name}</Link></h3>
       </div>
     </DestinationImage>

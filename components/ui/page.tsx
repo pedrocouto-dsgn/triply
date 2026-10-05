@@ -31,10 +31,10 @@ export function BackLink({ href, children, tone = "default" }: { href: string; c
  * Banner with a photo (or illustration). Full-bleed by default: it spans the whole content
  * area and fades into the page background at the bottom.
  */
-export function PageHero({ seed, image, eyebrow, title, description, actions, meta, children, size = "md", headingLevel = 1, back, bleed = true, width = "wide" }: { seed: string; image?: PlaceImage | null; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; meta?: ReactNode; children?: ReactNode; size?: "sm" | "md" | "lg"; headingLevel?: 1 | 2; back?: { href: string; label: string }; bleed?: boolean; width?: keyof typeof widths }) {
+export function PageHero({ seed, image, backdrop, eyebrow, title, description, actions, meta, children, size = "md", headingLevel = 1, back, bleed = true, width = "wide" }: { seed: string; image?: PlaceImage | null; backdrop?: ReactNode; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; meta?: ReactNode; children?: ReactNode; size?: "sm" | "md" | "lg"; headingLevel?: 1 | 2; back?: { href: string; label: string }; bleed?: boolean; width?: keyof typeof widths }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
   const height = size === "lg" ? "min-h-[380px] sm:min-h-[460px]" : size === "md" ? "min-h-[300px] sm:min-h-[360px]" : "min-h-[240px] sm:min-h-[280px]";
-  return <DestinationImage seed={seed} image={image} overlay="bottom" showCredit className={cn("w-full", bleed ? "" : "rounded-feature border border-border", height)}>
+  return <DestinationImage seed={seed} image={image} backdrop={backdrop} overlay="bottom" showCredit className={cn("w-full", bleed ? "" : "rounded-feature border border-border", height)}>
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
     <div className={cn("relative flex h-full flex-col gap-6 px-4 pb-6 pt-5 sm:px-6 lg:px-10", height)}>
       <div className={cn("mx-auto flex w-full flex-1 flex-col justify-between gap-6", bleed ? widths[width] : "")}>

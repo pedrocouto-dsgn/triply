@@ -47,3 +47,11 @@ Pending owner actions: apply the migration in Supabase; create an Unsplash acces
 5. The overview "Precisa de atenção" card became a Checklist card: the first 5 tasks plus a "Ver todas" link to `/planning#checklist-title`. The duplicate checklist ring was replaced by a "Transportes" status donut, and the Checklist stat tile by "Atividades". The next-step callout still uses the attention rules.
 
 Validation (v2.2): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 142/142; build PASS; E2E 9/9; harness 86/86. Checked in the owner's session: overview with Wikipedia photos, checklist card and route navigation.
+
+## v2.3 — budget simplification, route insert, map, cover (2026-10-05)
+Owner requests: a three-card budget (Objetivo / Já temos / Falta) editable in place; expense cards per category (Alojamento/Transportes/Atividades plus custom) with inline add, edit, paid and remove; destination and category forecasts with add buttons; the same simplification for savings; a cover-photo edit button; a working "+" between and after route cards; a route map in the route banner.
+
+Implementation: `features/finance/budget.ts` (pure, unit-tested), `budget-actions.ts` (inline server actions on the existing schema; history kept through refunds and archiving), `components/budget-ui.tsx` and `budget-view.tsx`. The old finance dashboard, category manager, savings summary and available-funds form were removed (unused). `/trips/{id}/cover` redirects to the first destination's image upload. `create_route_stop_at` (migration 012) inserts chronologically. `components/ui/route-map.tsx` is a dependency-free SVG map: OSM tiles and Nominatim geocoding are keyless and cached.
+
+Validation (v2.3): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145 (+3 budget); build PASS; E2E 9/9 (dashboard headings updated to Orçamento / Gastos por categoria); harness 86/86. Checked in the owner's session: budget cards and inline edit opening (nothing saved), route map with Amsterdam and Praga pins.
+Pending owner action: apply migration 202610050012 in Supabase.

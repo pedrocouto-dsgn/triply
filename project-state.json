@@ -746,6 +746,11 @@
       "date": "2026-10-05",
       "module": "visual-redesign-v2",
       "decision": "Owner asked for photos without an API key (Wikipedia used as keyless default, Unsplash optional), removal of the duplicate tab bar, moving trip management to trip settings, and replacing the attention card with a checklist preview (first 5 + 'Ver todas'). Owner reported migration 202610050011 applied."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "04-budget-expenses",
+      "decision": "Owner requested a simplified budget: Objetivo / Já temos (saved + paid) / Falta with inline editing, expense cards per category (inline add/edit/paid/remove, custom categories), forecast per destination/category kept with add actions; savings page simplified the same way. Specs 04 and 05 amended. Owner also requested working '+' to insert destinations between/after stops (migration 202610050012), a route map banner (OSM tiles + Nominatim, keyless) and a cover-photo edit button (cover = first destination image)."
     }
   ],
   "git_log": [
@@ -929,7 +934,8 @@
       "Not merged, pushed or deployed"
     ],
     "pending_owner_actions": [
-      "Optional: set UNSPLASH_ACCESS_KEY for Unsplash photos (Wikipedia is used without a key)"
+      "Apply supabase/migrations/202610050012_insert_route_stop.sql in the Supabase SQL editor (needed to add a destination between existing ones)",
+      "Optional: UNSPLASH_ACCESS_KEY"
     ],
     "migration_202610050011_applied": "owner reported applied 2026-10-05"
   }

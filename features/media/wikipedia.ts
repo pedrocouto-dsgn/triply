@@ -65,3 +65,4 @@ export async function getWikipediaPhoto(...titles: string[]): Promise<PlaceImage
   }
   return null;
 }
+

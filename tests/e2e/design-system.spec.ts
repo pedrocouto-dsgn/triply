@@ -7,8 +7,8 @@ for (const width of [375, 768, 1440]) {
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto("/design-system");
     await expect(page.getByRole("heading", { name: "Design system", exact: true })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Finanças", exact: true })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Poupança", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Orçamento", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Gastos por categoria", exact: true })).toBeVisible();
     await expect(page.getByRole("alert")).toContainText("Não foi possível carregar esta secção");
     await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 19, 21)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

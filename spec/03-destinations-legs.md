@@ -946,3 +946,7 @@ No implementation agent may infer alternative route semantics without an approve
 - Without an upload, an automatic place photo is used: Unsplash when `UNSPLASH_ACCESS_KEY` is configured, otherwise the keyless Wikipedia lead image (or the first photo in the article), with attribution. Without either, an illustrated placeholder is shown. These services receive only the place and country name, never user or trip data.
 - Selecting a destination card in the trip overview opens a details pop-up: image, dates, nights, timezone, arrival and departure transport, notes, and shortcuts to edit, itinerary and the full route.
 - The full route and its management live on `/trips/{id}/route`. The trip overview keeps a summary carousel.
+
+- **Insert between destinations (owner request, 2026-10-05):** the "+" between route cards and a final "+" card open a new destination pre-filled with the gap's dates. The destination is inserted at the chronological position (`create_route_stop_at`, migration `202610050012_insert_route_stop.sql`). Legs that stop being adjacent are flagged for review, as with reordering.
+- **Route map:** the "Rota e destinos" banner shows a map with one numbered pin per destination and a dashed route line. Coordinates come from OpenStreetMap Nominatim (keyless, cached 30 days, only place and country names are sent). Tiles are OpenStreetMap standard tiles, darkened with CSS and attributed.
+- **Trip cover:** the cover is the first destination's image. "Alterar capa" (overview banner, trips list and trip cards) opens that image upload.

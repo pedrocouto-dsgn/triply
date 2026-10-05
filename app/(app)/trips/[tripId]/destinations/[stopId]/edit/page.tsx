@@ -16,6 +16,7 @@ export default async function EditDestination({ params, searchParams }: PageProp
   return <FormShell backHref={`/trips/${tripId}/route`} backLabel="Voltar à rota" eyebrow="Editar destino" icon="mapPin" title={stop.placeName} aside={
     <section id="imagem" aria-labelledby="stop-image-title" className="mt-6 scroll-mt-6 rounded-feature border border-border bg-card p-5 sm:p-8">
       <div className="mb-5 flex items-center gap-3"><IconBadge icon="image" size="sm" /><div><h2 id="stop-image-title" className="text-xl font-semibold">Imagem do destino</h2><p className="text-sm text-muted-foreground">Aparece nos banners, no carrossel da rota e nos detalhes do destino.</p></div></div>
+      {query.cover ? <div className="mb-4"><Notice tone="neutral">A capa da viagem usa a imagem do primeiro destino ({stop.placeName}). Altere-a aqui.</Notice></div> : null}
       {query.image ? <div className="mb-4"><Notice tone="success">Imagem guardada.</Notice></div> : query.imageRemoved ? <div className="mb-4"><Notice tone="success">Imagem removida.</Notice></div> : null}
       <StopImageForm tripId={tripId} stopId={stopId} placeName={stop.placeName} image={images[stop.id] ?? null} hasUpload={paths.has(stop.id)} />
     </section>

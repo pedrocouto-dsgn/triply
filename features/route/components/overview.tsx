@@ -51,5 +51,6 @@ function LegBlock({ tripId, adjacency, allLegs }: { tripId: string; adjacency: R
         : <div className="mt-2"><p className="font-medium text-warning">Transporte por planear</p><Link href={`/trips/${tripId}/transport/new?from=${encodeURIComponent(adjacency.from.token)}&to=${encodeURIComponent(adjacency.to.token)}`} className="mt-2 inline-flex items-center gap-1 font-medium text-warning underline"><Icon name="plus" size={14} />Adicionar transporte</Link></div>}
       {historical.length ? <p className="mt-2 text-xs text-muted-foreground">{historical.length} transporte(s) cancelado(s) preservado(s)</p> : null}
     </div>
+    {adjacency.from.stopId ? <Link href={`/trips/${tripId}/destinations/new?after=${adjacency.from.stopId}`} className="mt-2 inline-flex min-h-10 items-center gap-1.5 rounded-full border border-dashed border-input px-3 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground"><Icon name="plus" size={13} />Inserir destino aqui</Link> : null}
   </div>;
 }
