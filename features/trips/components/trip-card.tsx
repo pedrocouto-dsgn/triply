@@ -1,18 +1,39 @@
 import Link from "next/link";
+import { Icon } from "@/components/ui/icons";
+import { DestinationImage } from "@/components/ui/media";
+import { calendarDaysBetween } from "@/features/savings/calculations";
 import { formatTripDateRange } from "../date";
 import { deriveTripLifecycle, lifecycleLabels } from "../lifecycle";
 import { formatMinorUnits } from "../money";
 import type { Trip } from "../types";
 
+export function countdownText(trip: Trip, today: string): string {
+  const days = calendarDaysBetween(today, trip.startDate);
+  if (days > 1) return `Faltam ${days} dias`;
+  if (days === 1) return "Parte amanhã";
+  if (days === 0) return "Parte hoje";
+  return today <= trip.endDate ? "A decorrer" : "Concluída";
+}
+
 export function TripCard({ trip, today }: { trip: Trip; today: string }) {
   const lifecycle = deriveTripLifecycle(trip, today);
   const budget = formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency);
-  return <article className="group flex h-full flex-col rounded-card border border-border bg-card transition-colors hover:border-muted-foreground/50">
-    <div className="flex-1 p-6">
-    <div className="flex items-center justify-between gap-3"><span aria-hidden="true" className="flex size-10 items-center justify-center rounded-control border border-border text-lg text-muted-foreground">↗</span><span className="rounded-control bg-muted px-2 py-1 text-xs text-muted-foreground">{lifecycleLabels[lifecycle]}</span></div>
-    <h3 className="mt-6 break-words text-xl font-semibold tracking-tight"><Link className="hover:text-link" href={`/trips/${trip.id}`}>{trip.name}</Link></h3><p className="mt-2 text-sm text-muted-foreground">{formatTripDateRange(trip.startDate, trip.endDate)}</p>
-    <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 border-t border-border pt-5 text-sm"><div><dt className="text-xs text-muted-foreground">Viajantes</dt><dd className="mt-1.5 font-medium">{trip.travelersCount}</dd></div><div><dt className="text-xs text-muted-foreground">Moeda base</dt><dd className="mt-1.5 font-medium">{trip.baseCurrency}</dd></div><div className="col-span-2"><dt className="text-xs text-muted-foreground">Orçamento desejado</dt><dd className="mt-1.5 text-lg font-medium tabular-nums">{budget ?? "Não definido"}</dd></div></dl>
+  const nights = calendarDaysBetween(trip.startDate, trip.endDate);
+  return <article className="group flex h-full flex-col overflow-hidden rounded-card border border-border bg-card transition-colors hover:border-primary/50">
+    <DestinationImage seed={trip.name} className="h-44">
+      <div className="flex h-full flex-col justify-between p-4 text-white">
+        <div className="flex items-start justify-between gap-2"><span className="rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold backdrop-blur">{lifecycleLabels[lifecycle]}</span>{lifecycle === "upcoming" || lifecycle === "ongoing" ? <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">{countdownText(trip, today)}</span> : null}</div>
+        <h3 className="break-words text-xl font-semibold tracking-tight drop-shadow"><Link className="hover:text-white/85" href={`/trips/${trip.id}`}>{trip.name}</Link></h3>
+      </div>
+    </DestinationImage>
+    <div className="flex flex-1 flex-col p-5">
+      <p className="flex items-center gap-2 text-sm text-muted-foreground"><Icon name="calendar" size={16} />{formatTripDateRange(trip.startDate, trip.endDate)}</p>
+      <dl className="mt-4 grid grid-cols-3 gap-3 text-sm">
+        <div className="rounded-xl bg-surface p-3"><dt className="text-xs text-muted-foreground">Noites</dt><dd className="mt-1 font-semibold">{nights}</dd></div>
+        <div className="rounded-xl bg-surface p-3"><dt className="text-xs text-muted-foreground">Viajantes</dt><dd className="mt-1 font-semibold">{trip.travelersCount}</dd></div>
+        <div className="rounded-xl bg-surface p-3"><dt className="text-xs text-muted-foreground">Moeda</dt><dd className="mt-1 font-semibold">{trip.baseCurrency}</dd></div>
+      </dl>
+      <div className="mt-auto flex items-end justify-between gap-3 pt-5"><div className="min-w-0"><p className="text-xs text-muted-foreground">Orçamento desejado</p><p className="mt-1 truncate text-lg font-semibold tabular-nums">{budget ?? "Não definido"}</p></div><Link href={`/trips/${trip.id}`} aria-label={`Abrir ${trip.name}`} className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground hover:bg-primary-hover"><Icon name="arrowRight" size={18} /></Link></div>
     </div>
-    <footer className="rounded-b-card border-t border-border bg-muted/60 px-6 py-2"><Link className="flex min-h-11 items-center justify-between rounded-control text-sm font-medium text-muted-foreground hover:text-link" href={`/trips/${trip.id}`}><span>Abrir</span><span aria-hidden="true">↗</span></Link></footer>
   </article>;
 }

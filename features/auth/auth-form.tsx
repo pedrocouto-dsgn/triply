@@ -36,7 +36,7 @@ export function AuthForm({
             placeholder={field.placeholder}
             aria-invalid={Boolean(state.fieldErrors?.[field.name])}
             aria-describedby={state.fieldErrors?.[field.name] ? `${field.name}-error` : undefined}
-            className="h-12 w-full rounded-control border border-input bg-card px-4 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/10"
+            className="h-12 w-full rounded-control border border-input bg-surface px-4 text-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
           />
           {state.fieldErrors?.[field.name] ? (
             <p id={`${field.name}-error`} className="mt-2 text-sm text-destructive">{state.fieldErrors[field.name]}</p>
@@ -50,7 +50,7 @@ export function AuthForm({
         </p>
       ) : null}
 
-      <button disabled={pending} className="h-12 w-full rounded-control bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60">
+      <button disabled={pending} className="h-12 w-full rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60">
         {pending ? "A processar…" : submitLabel}
       </button>
 
@@ -60,5 +60,5 @@ export function AuthForm({
 }
 
 export function AuthLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return <Link href={href} className="font-medium text-foreground underline underline-offset-4">{children}</Link>;
+  return <Link href={href} className="font-medium text-link underline underline-offset-4 hover:text-foreground">{children}</Link>;
 }

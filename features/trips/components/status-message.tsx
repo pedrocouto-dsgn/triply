@@ -1,3 +1,5 @@
+import { Notice } from "@/components/ui/page";
+
 const messages: Record<string, string> = {
   created: "Viagem criada com sucesso.",
   updated: "Alterações guardadas com sucesso.",
@@ -8,5 +10,5 @@ const messages: Record<string, string> = {
 
 export function StatusMessage({ kind }: { kind?: string }) {
   const message = kind ? messages[kind] : undefined;
-  return message ? <p role="status" className="rounded-control border border-success bg-success-muted p-4 text-sm font-medium text-success">{message}</p> : null;
+  return message ? <Notice tone="success">{message}</Notice> : null;
 }

@@ -2,7 +2,7 @@
   "project": "Triply",
   "version": "0.1",
   "mode": "autonomous_with_gates",
-  "last_updated": "2026-10-05T12:00:00+01:00",
+  "last_updated": "2026-10-05T12:30:00+01:00",
   "current_module": "01-auth-onboarding",
   "current_stage": "architecture",
   "status": "code_present_lifecycle_reconciliation_pending",
@@ -725,6 +725,11 @@
       "date": "2026-10-05",
       "module": "global",
       "decision": "Owner designated pedrocouto-dsgn/triply as the canonical GitHub repository; local origin updated. Owner configured Supabase auth URLs and disabled Confirm email."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "visual-redesign-v2",
+      "decision": "Owner requested a full, more visual layout redesign from Refs/ (banners, image cards, carousels with image placeholders, donut and other charts) and chose the dark + orange theme. Design system v2.0 supersedes v1.0. No functional specs, data model, auth or dependencies changed."
     }
   ],
   "git_log": [
@@ -873,5 +878,39 @@
       "verified": "landing page renders; authenticated flows not yet exercised"
     },
     "supabase_auth_configuration": "Owner reported on 2026-10-05: Site URL, redirect URLs and Confirm email disabled configured for https://triply-plum.vercel.app (not independently verified)."
+  },
+  "visual_redesign_v2": {
+    "status": "implemented_and_validated_pending_owner_review",
+    "branch": "feat/visual-redesign-v2",
+    "design_system": "spec/00-design-system.md (v2.0)",
+    "implementation_plan": "docs/implementation-plans/13-visual-redesign-v2.md",
+    "theme": "dark + orange (owner choice)",
+    "references": "Refs/ (12 images)",
+    "validation": {
+      "typecheck": "pass",
+      "lint": {
+        "errors": 0,
+        "preexisting_warnings": 14
+      },
+      "unit_tests": {
+        "passed": 141,
+        "failed": 0
+      },
+      "build": "pass",
+      "e2e_tests": {
+        "passed": 9,
+        "failed": 0
+      },
+      "harness_tests": {
+        "passed": 86,
+        "failed": 0
+      },
+      "harness_typecheck": "fail_preexisting_missing_execa_enquirer"
+    },
+    "limitations": [
+      "Authenticated pages not exercised with a live account",
+      "Images are illustrated placeholders; real photos not yet supported",
+      "Not merged, pushed or deployed"
+    ]
   }
 }

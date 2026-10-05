@@ -10,7 +10,7 @@ for (const width of [375, 768, 1440]) {
     await expect(page.getByRole("heading", { name: "Finanças", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Poupança", exact: true })).toBeVisible();
     await expect(page.getByRole("alert")).toContainText("Não foi possível carregar esta secção");
-    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 17, 17)");
+    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(15, 15, 16)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`catalogue-${width}.png`), fullPage: true });
     expect(errors).toEqual([]);
@@ -40,7 +40,7 @@ test("form examples preserve feedback, focus and disabled states", async ({ page
   await page.goto("/design-system");
   const name = page.getByLabel("Nome da viagem", { exact: true });
   await name.fill("Uma viagem de teste");
-  await expect(name).toHaveCSS("border-radius", "4px");
+  await expect(name).toHaveCSS("border-radius", "12px");
   await expect(name).toHaveCSS("outline-style", "solid");
   await expect(page.getByLabel("Data de fim · exemplo de erro")).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByRole("button", { name: "Indisponível" })).toBeDisabled();

@@ -1,18 +1,58 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BarList, ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
+import { Icon } from "@/components/ui/icons";
+import { BackLink, Badge, button, EmptyState, IconBadge, PageContainer, PageHero, Panel, SectionHeader } from "@/components/ui/page";
 import { ToggleTask, Starter } from "@/features/planning/components/check-actions";
 import { deriveDueState, safeBookingUrl } from "@/features/planning/helpers";
+import { checklistCategoryLabels, dueStateLabels, reservationStatusLabels, reservationTypeIcons, reservationTypeLabels } from "@/features/planning/labels";
 import { getOwnedPlanning } from "@/features/planning/queries";
 import { todayInLisbon } from "@/features/trips/lifecycle";
 import { getOwnedTrip } from "@/features/trips/queries";
-export default async function PlanningPage({ params }: PageProps<"/trips/[tripId]/planning">) {  
-const { tripId } = await params, [trip, data] = await Promise.all([getOwnedTrip(tripId), getOwnedPlanning(tripId)]); if (!trip || !data) notFound(); const today = todayInLisbon(); return (
-    <main className="min-h-screen bg-background px-5 py-8 sm:px-8 lg:px-12"><div className="mx-auto max-w-6xl"><Link href={`/trips/${tripId}`}>← Voltar à viagem</Link>
-      <header className="my-8"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Reservas e checklist</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Preparar {trip.name}</h1></header>
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className="min-w-0 rounded-feature border border-border bg-surface p-5 sm:p-6"><div className="flex flex-wrap justify-between gap-3"><h2 className="text-2xl font-semibold">Reservas</h2><Link href={`/trips/${tripId}/planning/reservations/new`} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Adicionar reserva</Link></div><div className="mt-6 grid gap-4">{data.reservations.filter(x => !x.archivedAt).map(r => <article key={r.id} className="rounded-card border border-border bg-card p-5"><p className="text-xs font-semibold uppercase text-muted-foreground">{r.type} · {r.status}</p><h3 className="mt-2 font-semibold">{r.title}</h3>{r.confirmationCode ? <code className="mt-2 block select-all break-all rounded bg-muted p-2">{r.confirmationCode}</code> : null}{r.bookingUrl && safeBookingUrl(r.bookingUrl) ? <a href={safeBookingUrl(r.bookingUrl)!} target="_blank" rel="noreferrer" className="mt-2 block underline">Abrir reserva</a> : null}{r.needsReview ? <p className="mt-2 text-sm text-warning">Rever associação ou datas.</p> : null}<Link href={`/trips/${tripId}/planning/reservations/${r.id}/edit`} className="mt-3 inline-block text-sm font-semibold underline">Editar</Link></article>)}{!data.reservations.length ? <p className="rounded-card border border-dashed border-border p-6 text-sm leading-6 text-muted-foreground">Mantenha hotéis, restaurantes e referências de reserva num só lugar.</p> : null}</div></section>
 
-        <section className="min-w-0 rounded-feature border border-border bg-surface p-5 sm:p-6"><div className="flex flex-wrap justify-between gap-3"><h2 className="text-2xl font-semibold">Checklist</h2><div className="flex flex-wrap gap-2"><Starter tripId={tripId} /><Link href={`/trips/${tripId}/planning/checklist/new`} className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Adicionar tarefa</Link></div></div><div className="mt-6 space-y-3">{data.checklist.map(item => { const due = deriveDueState(item, today); return <article key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-card p-4"><div><p className="font-semibold">{item.title}</p><p className="text-sm text-muted-foreground">{item.category}{item.dueDate ? ` · ${item.dueDate} · ${due}` : ""}{item.needsReview ? " · Rever destino" : ""}</p><Link href={`/trips/${tripId}/planning/checklist/${item.id}/edit`} className="text-xs underline">Editar</Link></div><ToggleTask tripId={tripId} itemId={item.id} completed={item.isCompleted} /></article> })}</div></section>
-      </div></div></main>
-  );
+export default async function PlanningPage({ params }: PageProps<"/trips/[tripId]/planning">) {
+  const { tripId } = await params, [trip, data] = await Promise.all([getOwnedTrip(tripId), getOwnedPlanning(tripId)]);
+  if (!trip || !data) notFound();
+  const today = todayInLisbon();
+  const reservations = data.reservations.filter((item) => !item.archivedAt);
+  const done = data.checklist.filter((item) => item.isCompleted).length;
+  const statusSegments = (["booked", "planned", "completed", "cancelled"] as const).map((status, index) => ({ label: reservationStatusLabels[status], value: reservations.filter((item) => item.status === status).length, display: String(reservations.filter((item) => item.status === status).length), color: ["var(--chart-3)", "var(--chart-2)", "var(--chart-4)", "var(--chart-7)"][index] }));
+  const categories = [...new Set(data.checklist.map((item) => item.category))].map((category) => {
+    const items = data.checklist.filter((item) => item.category === category), complete = items.filter((item) => item.isCompleted).length;
+    return { label: checklistCategoryLabels[category], value: complete, display: `${complete}/${items.length}`, total: items.length };
+  });
+  return <PageContainer>
+    <div className="mb-4"><BackLink href={`/trips/${tripId}`}>Voltar à viagem</BackLink></div>
+    <PageHero seed={`${trip.name} preparar`} size="sm" eyebrow={<><Icon name="checklist" size={14} />Reservas e checklist</>} title={`Preparar ${trip.name}`} />
+    <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <Panel aria-labelledby="reservation-chart-title"><SectionHeader id="reservation-chart-title" as="h3" title="Reservas por estado" description={`${reservations.length} ativa(s)`} /><div className="mt-5 flex flex-wrap items-center gap-6"><DonutChart size={132} thickness={15} label={`Reservas por estado: ${statusSegments.map((item) => `${item.label} ${item.display}`).join(", ")}`} segments={statusSegments} center={<><span className="text-2xl font-semibold">{reservations.length}</span><span className="text-xs text-muted-foreground">reservas</span></>} /><ChartLegend segments={statusSegments} className="min-w-36 flex-1" /></div></Panel>
+      <Panel aria-labelledby="checklist-chart-title"><SectionHeader id="checklist-chart-title" as="h3" title="Progresso da checklist" description={`${done} de ${data.checklist.length} concluídas`} /><div className="mt-5 flex flex-wrap items-center gap-6"><RingProgress size={132} thickness={14} color="var(--chart-3)" percent={data.checklist.length ? (done / data.checklist.length) * 100 : 0} label="Progresso da checklist" />{categories.length ? <BarList className="min-w-40 flex-1" items={categories.slice(0, 4)} max={Math.max(...categories.map((item) => item.total))} /> : <p className="flex-1 text-sm text-muted-foreground">Ainda não há tarefas.</p>}</div></Panel>
+    </div>
+    <div className="mt-6 grid items-start gap-6 xl:grid-cols-2">
+      <section aria-labelledby="reservations-title" className="min-w-0">
+        <SectionHeader id="reservations-title" title="Reservas" action={<Link href={`/trips/${tripId}/planning/reservations/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar reserva</Link>} />
+        <div className="mt-4 grid gap-3">{reservations.map((reservation) => <article key={reservation.id} className="flex gap-4 rounded-card border border-border bg-card p-4 sm:p-5">
+          <IconBadge icon={reservationTypeIcons[reservation.type]} tone={reservation.status === "booked" || reservation.status === "completed" ? "success" : "primary"} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2"><p className="text-xs font-semibold uppercase text-muted-foreground">{reservationTypeLabels[reservation.type]}</p><Badge tone={reservation.status === "booked" ? "success" : reservation.status === "cancelled" ? "neutral" : "primary"}>{reservationStatusLabels[reservation.status]}</Badge></div>
+            <h3 className="mt-1.5 font-semibold">{reservation.title}</h3>
+            {reservation.startDate ? <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><Icon name="calendar" size={14} />{reservation.startDate}{reservation.startTime ? ` · ${reservation.startTime}` : ""}{reservation.location ? ` · ${reservation.location}` : ""}</p> : null}
+            {reservation.confirmationCode ? <code className="mt-2 block select-all break-all rounded-xl bg-surface p-2 text-sm">{reservation.confirmationCode}</code> : null}
+            {reservation.needsReview ? <p className="mt-2 text-sm text-warning">Rever associação ou datas.</p> : null}
+            <div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold">{reservation.bookingUrl && safeBookingUrl(reservation.bookingUrl) ? <a href={safeBookingUrl(reservation.bookingUrl)!} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-link underline">Abrir reserva<Icon name="external" size={14} /></a> : null}<Link href={`/trips/${tripId}/planning/reservations/${reservation.id}/edit`} className="text-link underline">Editar</Link></div>
+          </div>
+        </article>)}{!data.reservations.length ? <EmptyState icon="ticket" title="Ainda não há reservas" description="Mantenha hotéis, restaurantes e referências de reserva num só lugar." /> : null}</div>
+      </section>
+      <section aria-labelledby="checklist-title" className="min-w-0">
+        <SectionHeader id="checklist-title" title="Checklist" action={<div className="flex flex-wrap gap-2"><Starter tripId={tripId} /><Link href={`/trips/${tripId}/planning/checklist/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar tarefa</Link></div>} />
+        <div className="mt-4 space-y-2">{data.checklist.map((item) => {
+          const due = deriveDueState(item, today);
+          return <article key={item.id} className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 ${item.isCompleted ? "border-border bg-surface" : "border-border bg-card"}`}>
+            <div className="flex min-w-0 items-start gap-3"><span aria-hidden="true" className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border ${item.isCompleted ? "border-success bg-success text-background" : "border-input"}`}>{item.isCompleted ? <Icon name="check" size={14} strokeWidth={2.6} /> : null}</span><div className="min-w-0"><p className={`font-semibold ${item.isCompleted ? "text-muted-foreground line-through" : ""}`}>{item.title}</p><p className="mt-0.5 text-sm text-muted-foreground">{checklistCategoryLabels[item.category]}{item.dueDate ? ` · ${item.dueDate} · ${dueStateLabels[due]}` : ""}{item.needsReview ? " · Rever destino" : ""}</p><Link href={`/trips/${tripId}/planning/checklist/${item.id}/edit`} className="text-xs text-link underline">Editar</Link></div></div>
+            <ToggleTask tripId={tripId} itemId={item.id} completed={item.isCompleted} />
+          </article>;
+        })}{!data.checklist.length ? <EmptyState icon="checklist" title="A checklist está vazia" description="Use a checklist inicial ou adicione as suas próprias tarefas." /> : null}</div>
+      </section>
+    </div>
+  </PageContainer>;
 }

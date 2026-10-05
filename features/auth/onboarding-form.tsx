@@ -28,7 +28,7 @@ export function OnboardingForm({ initialName = "", initialCurrency = "EUR", init
         </select>
       </div>
       {state.message ? <p role="status" className="rounded-control border border-destructive bg-destructive-muted p-3 text-sm text-destructive">{state.message}</p> : null}
-      <button disabled={pending} className="h-12 w-full rounded-control bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? "A guardar…" : "Entrar no Triply"}</button>
+      <button disabled={pending} className="h-12 w-full rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? "A guardar…" : "Entrar no Triply"}</button>
     </form>
   );
 }

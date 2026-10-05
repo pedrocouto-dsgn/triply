@@ -1,73 +1,72 @@
 # Triply Design System
-Version: 1.0 — Notion dark adaptation
-Status: Implemented and validated on 2026-09-07, under the visual direction authorized by the owner on 2026-09-06.
+Version: 2.0 — Dark + orange travel workspace
+Status: Implemented on 2026-10-05 under the visual direction requested by the owner on 2026-10-05 (reference folder `Refs/`, 12 images). Supersedes v1.0 (Notion dark adaptation, 2026-09-07).
 
-## Source and adaptation
-Reference: https://design.aioxsquad.ai/design/notion_getdesign?tag=dark
-Verified source: `/data/companies/notion/designs/notion_getdesign/preview.json`, `modes.dark`.
-The accompanying DESIGN.md mainly describes the light marketing site. The selected dark preview governs colors; the document informs typography, restrained borders, spacing and component geometry.
+## Direction
+The owner found v1.0 confusing and text-heavy and asked for a more visual, simpler platform: banners, image cards and carousels with image placeholders, donut and other charts. The owner chose "dark + orange" from three options.
 
-Triply uses the same quiet dark canvas, blue actions and compact controls, adapted to a travel workspace. A persistent desktop sidebar and a mobile disclosure keep trip sections reachable. Ordered stays, connecting travel legs, dates and financial labels take precedence over decoration. No invented metrics, destinations or reservations appear in authenticated pages.
+Reference synthesis (`Refs/`):
+- "Plan your next trip" tablet (orange on near-black): bold uppercase hero, photo cards, orange primary actions. Main palette source.
+- IndiGo / Wanderlust dashboards: hero banner with a route bar, destination photo cards with an action corner, icon sidebar.
+- Noora travel dashboard: greeting header, image trip cards, leave/return detail blocks.
+- SmartShort sidebar: grouped menu, elevated active row with an accent bar.
+- Traffic / workflow dashboards: dark stat tiles, charts and timeline bars.
+- Dark glass sign-in and Golden Suisse login: split image/form auth, centred glass card.
+- Azure Coast card carousel: destination cards with image, meta and price row.
+
+Triply keeps its domain rules. Trips stay multi-stop, money labels stay explicit and nothing is invented in authenticated pages. Images are illustrated placeholders, generated deterministically from the destination or trip name (`components/ui/media.tsx`), so no external image service, upload or dependency is added. They can later be replaced by real photos.
 
 ## Semantic tokens
 | Token | Value | Role |
 | --- | --- | --- |
-| background | #111111 | Page canvas |
-| foreground | #f6f5f4 | Primary content |
-| card | #1a1a1a | Cards, form panels |
-| surface | #181818 | Sidebar, supporting panels |
-| muted | #202020 | Hover, subtle fill |
-| muted-foreground | #a3a3a3 | Secondary text |
-| primary | #0075de | Main action |
-| primary-hover | #005bab | Hover/pressed action |
-| primary-foreground | #ffffff | Text on primary |
-| link | #62aef0 | Inline links on dark surfaces |
-| border | #ffffff24 | Structural borders |
-| input | #73716e | Discernible control borders |
-| ring | #62aef0 | Keyboard focus |
-| success / success-muted | #78dca0 / #173327 | Completion and positive feedback |
-| warning / warning-muted | #f0be78 / #33291b | Review and attention |
-| destructive / destructive-muted | #ff9e9e / #391f23 | Errors and destructive actions |
-| danger / danger-hover | #a72f3c / #8c2330 | Destructive button backgrounds |
+| background | #0f0f10 | Page canvas |
+| foreground | #fafafa | Primary content |
+| card | #18181b | Cards, panels |
+| surface | #141416 | Sidebar, inputs, nested rows |
+| elevated | #1f1f23 | Active navigation, secondary buttons |
+| muted | #27272a | Hover, chart track, subtle fill |
+| muted-foreground | #a1a1aa | Secondary text |
+| primary / primary-hover | #ff6b2c / #ff8a57 | Main action (orange) |
+| primary-foreground | #1a0b03 | Text on orange (AA) |
+| primary-muted | #3a1d10 | Orange-tinted badges and icons |
+| link | #ff9a66 | Inline links |
+| border | #ffffff1a | Structural borders |
+| input | #71717a | Control borders |
+| ring | #ff8a57 | Keyboard focus |
+| success / success-muted | #4ade80 / #0f2a1c | Completion |
+| warning / warning-muted | #fbbf24 / #2e2410 | Review and attention |
+| destructive / destructive-muted | #ff8a8a / #3a1a1c | Errors |
+| danger / danger-hover / danger-foreground | #c93a40 / #a92f35 / #ffffff | Destructive buttons |
+| chart-1…7 | #ff6b2c, #ffb36b, #3cc6b5, #7c8cff, #c084fc, #f472b6, #94a3b8 | Chart series |
 
-Use semantic Tailwind utilities mapped to these CSS variables. Do not invert neutral palettes or use raw hex colors inside JSX. Information must never rely only on color. Financial labels remain explicit: estimated, forecast, committed, paid and actual. Values retain currency and absent values remain absent.
+Use semantic utilities. Raw hex values are allowed only inside the illustrated scene palette of `media.tsx`. Information never relies only on colour: every chart has a text legend or label with values. Financial labels stay explicit: estimated, forecast, committed, paid and actual.
 
 ## Type and spacing
-System sans stack (`Inter` when locally available, otherwise system-ui, Segoe UI, Arial); no proprietary font downloads or runtime font vendor. Body 16px/1.5, secondary UI 14px/1.5, metadata 12px. Headings use 600–700 weight and negative tracking: page 32–48px, section 20–24px. Display marketing copy can reach 64px. Use tabular numerals for money.
+System sans stack (Inter when available). No font download. Display hero copy may be bold uppercase (landing). Page titles 32–48px, section titles 20px, metadata 12px. Tabular numerals for money. Spacing 4/8/12/16/24/32/40/64px. Content up to 1280px (`max-w-7xl`); forms 768px. Desktop sidebar 260px. Mobile: sticky top bar with a native disclosure menu, 16px gutters, no page-level horizontal scroll. Carousels (`.scroll-row`) scroll inside their own region.
 
-Spacing scale: 4, 8, 12, 16, 24, 32, 40, 64px. Content width up to 1200px; focused forms 640–768px. Desktop sidebar 232px, mobile single column with 16–20px gutters. Avoid page-level horizontal scrolling; long identifiers wrap and ordered route summaries can scroll within their own region.
+Radii: controls 12px, cards 20px, feature panels/banners 28px, buttons and badges fully rounded.
 
-## Components
-- Controls: 4px radius, minimum 44px touch height, visible border, stable geometry on hover.
-- Cards: 12px radius, thin border, no prominent shadow. Featured panels: 16px radius.
-- Badges: full radius; concise text, optional semantic tint.
-- Primary actions: blue; secondary actions: transparent or muted with border; destructive actions: separate red treatment and existing explicit confirmation.
-- Inputs: dark card surface, clear label, helper text where needed, visible invalid border and associated error message. Selects and date/file inputs use dark browser controls.
-- Focus: 2px light-blue outline with 3px offset; not removed by focus reset utilities.
-- Navigation: named landmarks, active page indication, desktop sidebar, native mobile disclosure, skip link to main content.
-- Progress: semantic progress element or labelled progressbar; textual amount/percentage remains visible.
-- Motion: color transitions around 150ms only; honor reduced motion. No bounce or scale-on-click.
+## Components (`components/ui/`)
+- `page.tsx`: `button` styles (primary, secondary, ghost, glass), `PageContainer`, `BackLink`, `PageHero` (image banner with eyebrow, title, meta chips, actions), `HeroChip`, `SectionHeader`, `Panel`, `IconBadge`, `Badge`, `StatTile`, `EmptyState`, `Notice`, `FormShell`.
+- `charts.tsx` (SVG, no dependency): `DonutChart`, `ChartLegend`, `RingProgress` (role progressbar), `BarList`, `StackedBar`, `ColumnChart`. Each has an accessible label that lists its values.
+- `media.tsx`: `DestinationImage` / `SceneArt`, stable illustrated placeholders with a readability gradient.
+- `icons.tsx`: inline stroke icon set plus a travel-mode icon map.
+- Focus: 2px orange outline, 3px offset. Motion: colour/opacity transitions only; reduced motion honoured.
 
 ## Page composition
-- Landing and authentication: editorial headline, blue CTA, quiet route illustration explicitly identified as an example; compact forms.
-- Trips: workspace heading, active trip cards, separate archive section, useful empty-state action.
-- Trip: contextual sidebar, editorial trip header, financial and savings panels, attention list, ordered route and daily planning. Existing route management remains reachable.
-- Finance: labelled metrics and grouped category/destination breakdowns; all original actions and transaction history retained.
-- Savings: prominent remaining amount, progress and explanatory target basis, rhythm cards only in valid domain states.
-- Itinerary: chronological day sections and ordered events with local timezone context.
-- Reservations/checklist: distinct sections and existing controls; document catalogue: filters then results; settings: focused form panels.
-- All new/edit forms: common control, heading, panel and validation language.
+- Landing: full-width image hero with uppercase headline, CTA and example route bar; inspiration carousel (labelled as examples); feature tiles; example chart preview.
+- Auth/onboarding: illustrated image panel and a glass form card.
+- Trips: identity header, featured next trip banner with countdown, trip-status donut, stat tiles, image trip cards with an orange action corner, archive section.
+- Trip overview: image hero with countdown, dates, duration, travellers and stop count; stat tiles; finance donut (paid / committed unpaid / planned unbooked / budget margin) with explicit metrics; savings ring; route carousel of destination image cards with travel-mode connectors; attention list; upcoming itinerary with date badges; reservations donut, checklist ring, documents validity donut. The full route timeline and trip management stay below.
+- Finance: stat tiles, budget-usage stacked bar, category donut, destination bar list, cost rows with category colour, history rows.
+- Savings: large ring, funding-source donut, stat tiles, pace cards.
+- Itinerary: day strip (calendar chips) with an activities-per-day column chart; day cards with date badge, destination thumbnail, transport rows and a time-pill timeline.
+- Planning: reservation-status donut, checklist ring with per-category bars, reservation cards with type icons, check-style tasks. Enum values are shown with Portuguese labels.
+- Documents: validity donut, type bars, filter bar, document cards with type icon and validity badge.
+- Forms: common `FormShell` with back link, icon header and panel.
 
 ## Required states and acceptance
-Loading, empty, error, success, disabled and destructive states remain visible and accessible. Every existing field, route, action, confirmation and domain helper is retained. Test keyboard focus, mobile navigation, overflow at 375px and desktop layout at 1440px. Public `/design-system` contains synthetic examples only, never authenticated data. Run repository typecheck, build, unit, E2E and harness tests; failures cannot be reported as PASS.
+Loading, empty, error, success, disabled and destructive states remain visible and accessible. Every existing field, route, action, confirmation and domain helper is retained. Test keyboard focus, mobile navigation, overflow at 375/768px and desktop at 1440px. Public `/design-system` uses synthetic data only. Run typecheck, lint, build, unit, E2E and harness tests. Failures are never reported as PASS.
 
-## 21st.dev references
-On 2026-09-07, the existing Cursor MCP connection to `https://21st.dev/api/mcp` successfully completed initialize and free catalog search. The separate CLI login returned HTTP 401. No credentials were printed or copied into this project.
-
-References were selected from actual MCP search results and their preview images inspected:
-- [Dashboard Sidebar by arunjdass](https://21st.dev/@arunjdass/components/dashboard-sidebar), demo 14941: separate workspace/trip navigation groups, quiet active row and fixed content frame. Adapted in AppShell.
-- [Trip Details Card by kavikatiyar](https://21st.dev/@kavikatiyar/components/trip-details-card), demo 7957: distinct lower action strip. Adapted in TripCard, retaining multi-stop trip semantics and existing fields.
-- [Financial Dashboard by ravikatiyar162](https://21st.dev/@ravikatiyar162/components/financial-dashboard), demo 8253: activity rows with labels/dates left and monetary amounts/actions right. Adapted in FinanceDashboard; no banking features added.
-- [Timeline by preetsuthar17](https://21st.dev/@preetsuthar17/components/timeline), demo 5157: connected markers and chronological hierarchy. Adapted to numbered local trip days in ItineraryTimeline.
-
-These are visual references; components are implemented in the existing stack. No paid source retrieval, copied component source, extra library or runtime service was used.
+## History
+v1.0 (2026-09-07) adapted the Notion dark reference and used 21st.dev references for the sidebar, trip card, finance rows and timeline (demos 14941, 7957, 8253, 5157). v2.0 replaces its tokens and compositions.

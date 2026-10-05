@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { BarList, ChartLegend, ColumnChart, DonutChart, RingProgress, StackedBar } from "@/components/ui/charts";
+import { Icon } from "@/components/ui/icons";
+import { DestinationImage } from "@/components/ui/media";
+import { Badge, button, EmptyState, Notice, Panel, StatTile } from "@/components/ui/page";
 import { TripDashboard } from "@/features/dashboard/components/trip-dashboard";
 import type { DashboardData } from "@/features/dashboard/types";
+import type { Stop } from "@/features/route/types";
 import { TripCard } from "@/features/trips/components/trip-card";
 import type { Trip } from "@/features/trips/types";
 import { calculateSavingsPlan } from "@/features/savings/calculations";
@@ -17,48 +22,57 @@ const exampleTrip: Trip = {
   baseCurrency: "EUR", targetBudgetMinor: "420000", archivedAt: null,
   createdAt: "2026-09-01T00:00:00Z", updatedAt: "2026-09-01T00:00:00Z",
 };
+const exampleStop = (position: number, placeName: string, arrivalDate: string, departureDate: string): Stop => ({
+  id: `00000000-0000-4000-8000-00000000010${position}`, tripId: exampleTrip.id, position, placeName, countryCode: "JP", countryName: "Japão",
+  arrivalDate, departureDate, timezone: "Asia/Tokyo", notes: null, createdAt: "2026-09-01T00:00:00Z", updatedAt: "2026-09-01T00:00:00Z",
+});
+const exampleStops = [exampleStop(1, "Tóquio", "2027-04-03", "2027-04-08"), exampleStop(2, "Quioto", "2027-04-08", "2027-04-13"), exampleStop(3, "Osaka", "2027-04-13", "2027-04-17")];
 
 const palette = [
-  ["Canvas", "#111111", "bg-background"], ["Cartão", "#1a1a1a", "bg-card"],
-  ["Superfície", "#181818", "bg-surface"], ["Subtil", "#202020", "bg-muted"],
-  ["Primária", "#0075de", "bg-primary"], ["Texto", "#f6f5f4", "bg-foreground"],
+  ["Canvas", "#0f0f10", "bg-background"], ["Cartão", "#18181b", "bg-card"],
+  ["Superfície", "#141416", "bg-surface"], ["Elevado", "#1f1f23", "bg-elevated"],
+  ["Primária", "#ff6b2c", "bg-primary"], ["Texto", "#fafafa", "bg-foreground"],
 ] as const;
+const chartPalette = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5", "bg-chart-6", "bg-chart-7"];
 const panel = "rounded-card border border-border bg-card p-5 sm:p-7";
-const primary = "rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground";
 const exampleDashboard: DashboardData = {
   trip: exampleTrip,
-  route: { status: "ready", data: { stops: [], legs: [] } },
+  route: { status: "ready", data: { stops: exampleStops, legs: [] } },
   finance: { status: "ready", data: {
     data: { categories: [], costs: [], payments: [], actuals: [], adjustments: [] },
-    totals: { estimated: 420000n, committed: 280000n, forecast: 420000n, paid: 160000n, actual: 145000n, unplannedActual: 0n },
+    totals: { estimated: 420000n, committed: 280000n, forecast: 380000n, paid: 160000n, actual: 145000n, unplannedActual: 0n },
   } },
   savings: { status: "ready", data: { record: null, calculation: calculateSavingsPlan({
-    targetBudgetMinor: exampleTrip.targetBudgetMinor, forecastMinor: "420000", hasForecast: true,
+    targetBudgetMinor: exampleTrip.targetBudgetMinor, forecastMinor: "380000", hasForecast: true,
     netPaidMinor: "160000", currentAvailableMinor: "80000", startDate: exampleTrip.startDate, today: "2026-09-06",
   }) } },
   itinerary: { status: "ready", data: [] },
   planning: { status: "ready", data: { reservations: [], checklist: [] } },
   documents: { status: "error" },
 };
+const budgetExample = [{ label: "Alojamento", value: 1600, display: "1 600,00 €" }, { label: "Transportes", value: 1200, display: "1 200,00 €" }, { label: "Experiências", value: 650, display: "650,00 €" }, { label: "Refeições", value: 350, display: "350,00 €" }];
 
 export function DesignSystemShowcase() {
   const [name, setName] = useState("Japão, ao nosso ritmo");
   const [saved, setSaved] = useState(false);
   return (<AppShell account="Triply · Biblioteca visual">
-    <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
-      <header className="border-b border-border pb-8">
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Triply / Biblioteca visual</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Design system</h1>
-        <p className="mt-4 max-w-2xl text-muted-foreground">Um espaço calmo para planear todas as etapas. Superfícies escuras, hierarquia clara e azul para dar o próximo passo.</p>
-        <p className="mt-4 text-sm text-warning">Exemplos fictícios · Os dados desta página são apenas demonstrativos.</p>
-        <nav aria-label="Secções do design system" className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-link">{[["fundamentos", "Fundamentos"], ["componentes", "Componentes"], ["viagem", "Viagem e rota"]].map(([id, label]) => <a key={id} href={`#${id}`} className="py-2 hover:underline">{label}</a>)}</nav>
-      </header>
+    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-10">
+      <DestinationImage seed="Triply biblioteca visual" className="rounded-feature border border-border">
+        <div className="flex min-h-[260px] flex-col justify-end p-6 text-white sm:p-10">
+          <p className="w-fit rounded-full border border-white/20 bg-black/35 px-3 py-1 text-xs font-medium backdrop-blur">Triply / Biblioteca visual</p>
+          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Design system</h1>
+          <p className="mt-3 max-w-2xl text-white/80">Escuro e quente, com imagens, gráficos e laranja para dar o próximo passo. Simples de ler, fácil de usar.</p>
+        </div>
+      </DestinationImage>
+      <p className="mt-4 text-sm text-warning">Exemplos fictícios · Os dados desta página são apenas demonstrativos.</p>
+      <nav aria-label="Secções do design system" className="mt-4 flex flex-wrap gap-2 text-sm">{[["fundamentos", "Fundamentos"], ["componentes", "Componentes"], ["graficos", "Gráficos"], ["viagem", "Viagem e rota"]].map(([id, label]) => <a key={id} href={`#${id}`} className="rounded-full border border-border bg-card px-4 py-2 hover:border-primary/60">{label}</a>)}</nav>
 
       <section id="fundamentos" aria-labelledby="foundations-title" className="py-9">
         <h2 id="foundations-title" className="text-2xl font-semibold">01 / Fundamentos</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Contraste, espaço e poucos elementos em destaque.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Superfícies escuras em camadas, um laranja de ação e cores de gráfico distintas.</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{palette.map(([label, value, color]) => <div key={label} className="overflow-hidden rounded-card border border-border"><div aria-hidden="true" className={`h-20 border-b border-border ${color}`} /><div className="p-3"><p className="text-sm font-medium">{label}</p><p className="mt-1 font-mono text-xs text-muted-foreground">{value}</p></div></div>)}</div>
-        <div className={`${panel} mt-6`}><p className="text-xs uppercase tracking-widest text-muted-foreground">Tipografia · Sistema / Inter quando disponível</p><p className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">Cada destino, parte da história.</p><p className="mt-4 max-w-xl leading-7 text-muted-foreground">Títulos próximos, texto com espaço para respirar e números fáceis de comparar. Uma viagem pode ter um ou muitos destinos.</p><p className="mt-5 font-mono text-sm text-muted-foreground">4 · 8 · 16 · 24 · 40 px / Raios: 4 e 12 px</p></div>
+        <div className="mt-3 flex gap-2" aria-label="Cores de gráfico">{chartPalette.map((color) => <span key={color} aria-hidden="true" className={`h-3 flex-1 rounded-full ${color}`} />)}</div>
+        <div className={`${panel} mt-6`}><p className="text-xs uppercase tracking-widest text-muted-foreground">Tipografia · Sistema / Inter quando disponível</p><p className="mt-5 text-3xl font-bold uppercase tracking-tight sm:text-4xl">Planeie a sua próxima viagem</p><p className="mt-4 max-w-xl leading-7 text-muted-foreground">Títulos fortes, texto com espaço para respirar e números fáceis de comparar. Uma viagem pode ter um ou muitos destinos.</p><p className="mt-5 font-mono text-sm text-muted-foreground">4 · 8 · 16 · 24 · 40 px / Raios: 12, 20 e 28 px</p></div>
       </section>
 
       <section id="componentes" aria-labelledby="components-title" className="border-t border-border py-9">
@@ -66,26 +80,36 @@ export function DesignSystemShowcase() {
         <div className="mt-6 grid gap-5 xl:grid-cols-2">
           <form className={panel} onSubmit={(event) => { event.preventDefault(); setSaved(true); }}>
             <h3 className="text-lg font-semibold">Formulário de exemplo</h3><p className="mt-2 text-sm text-muted-foreground">Experimente guardar. O exemplo fica apenas nesta página.</p>
-            <label htmlFor="example-trip-name" className="mt-6 block text-sm font-medium">Nome da viagem</label><input id="example-trip-name" value={name} required onChange={(event) => { setName(event.target.value); setSaved(false); }} className="mt-2 w-full border border-input px-3 py-2" />
-            <label htmlFor="example-invalid" className="mt-5 block text-sm font-medium">Data de fim · exemplo de erro</label><input id="example-invalid" defaultValue="" placeholder="Escolha uma data" aria-invalid="true" aria-describedby="example-invalid-help" className="mt-2 w-full border border-input px-3 py-2" /><p id="example-invalid-help" className="mt-2 text-sm text-destructive">Indique uma data de fim para a viagem.</p>
-            <div className="mt-6 flex flex-wrap gap-3"><button className={primary} type="submit">Guardar exemplo</button><button type="button" onClick={() => { setName("Japão, ao nosso ritmo"); setSaved(false); }} className="rounded-control border border-input px-4 py-2.5 text-sm">Repor</button><button type="button" disabled className="rounded-control bg-muted px-4 py-2.5 text-sm text-muted-foreground">Indisponível</button></div>
+            <label htmlFor="example-trip-name" className="mt-6 block text-sm font-medium">Nome da viagem</label><input id="example-trip-name" value={name} required onChange={(event) => { setName(event.target.value); setSaved(false); }} className="mt-2 h-12 w-full px-4" />
+            <label htmlFor="example-invalid" className="mt-5 block text-sm font-medium">Data de fim · exemplo de erro</label><input id="example-invalid" defaultValue="" placeholder="Escolha uma data" aria-invalid="true" aria-describedby="example-invalid-help" className="mt-2 h-12 w-full px-4" /><p id="example-invalid-help" className="mt-2 text-sm text-destructive">Indique uma data de fim para a viagem.</p>
+            <div className="mt-6 flex flex-wrap gap-3"><button className={button.primary} type="submit">Guardar exemplo</button><button type="button" onClick={() => { setName("Japão, ao nosso ritmo"); setSaved(false); }} className={button.secondary}>Repor</button><button type="button" disabled className="inline-flex min-h-11 items-center rounded-full bg-muted px-5 text-sm text-muted-foreground">Indisponível</button></div>
             <div role="status" className="mt-4 text-sm text-success">{saved ? "Exemplo guardado." : ""}</div>
           </form>
-          <div className={panel}><h3 className="text-lg font-semibold">Estados e feedback</h3><div className="mt-6 space-y-3 text-sm"><p className="rounded-control bg-success-muted p-4 text-success">Sucesso · Alterações guardadas.</p><p className="rounded-control bg-warning-muted p-4 text-warning">Atenção · Existem detalhes por completar.</p><p className="rounded-control bg-destructive-muted p-4 text-destructive">Erro · Não foi possível guardar. Tente novamente.</p><p className="rounded-control bg-muted p-4 text-muted-foreground">A carregar · A preparar o seu espaço.</p></div><div className="mt-6 rounded-control border border-dashed border-input p-5"><h4 className="font-medium">Ainda não há reservas</h4><p className="mt-2 text-sm text-muted-foreground">As reservas da viagem aparecem aqui depois de serem adicionadas.</p></div></div>
+          <div className={panel}><h3 className="text-lg font-semibold">Estados e feedback</h3><div className="mt-6 space-y-3 text-sm"><Notice tone="success">Sucesso · Alterações guardadas.</Notice><Notice tone="warning">Atenção · Existem detalhes por completar.</Notice><Notice tone="danger">Erro · Não foi possível guardar. Tente novamente.</Notice><Notice tone="neutral">A carregar · A preparar o seu espaço.</Notice></div><div className="mt-4 flex flex-wrap gap-2"><Badge tone="primary">Próxima</Badge><Badge tone="success">Reservada</Badge><Badge tone="warning">Por rever</Badge><Badge tone="danger">Expirado</Badge><Badge>Arquivada</Badge></div><EmptyState className="mt-5" icon="ticket" title="Ainda não há reservas" description="As reservas da viagem aparecem aqui depois de serem adicionadas." /></div>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4"><StatTile icon="mapPin" label="Destinos" value="3" hint="1 país" /><StatTile icon="wallet" tone="success" label="Orçamento" value="4 200,00 €" hint="Dentro do orçamento" /><StatTile icon="piggy" tone="warning" label="Financiado" value="57%" /><StatTile icon="checklist" tone="neutral" label="Checklist" value="8/12" /></div>
+      </section>
+
+      <section id="graficos" aria-labelledby="charts-title" className="border-t border-border py-9">
+        <h2 id="charts-title" className="text-2xl font-semibold">03 / Gráficos</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Cada gráfico mostra os valores em texto; a cor nunca é a única informação.</p>
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <Panel><h3 className="font-semibold">Donut · categorias</h3><div className="mt-5 flex flex-wrap items-center gap-5"><DonutChart size={140} label="Exemplo de orçamento por categoria" segments={budgetExample} center={<><span className="text-xs text-muted-foreground">Total</span><span className="text-sm font-semibold">3 800,00 €</span></>} /><ChartLegend segments={budgetExample} className="min-w-40 flex-1" /></div></Panel>
+          <Panel><h3 className="font-semibold">Anel · progresso</h3><div className="mt-5 flex items-center gap-5"><RingProgress percent={57} label="Exemplo de progresso" /><div className="flex-1 space-y-3"><p className="text-sm text-muted-foreground">Pago, comprometido e previsto</p><StackedBar label="Exemplo de barra empilhada" segments={[{ label: "Pago", value: 1600 }, { label: "Comprometido", value: 1200 }, { label: "Previsto", value: 1000 }]} /></div></div></Panel>
+          <Panel><h3 className="font-semibold">Barras · destinos e dias</h3><BarList className="mt-5" items={[{ label: "Tóquio", value: 1700, display: "1 700,00 €" }, { label: "Quioto", value: 1150, display: "1 150,00 €" }, { label: "Osaka", value: 950, display: "950,00 €" }]} /><div className="mt-5"><ColumnChart label="Exemplo de atividades por dia" height={64} items={[2, 4, 3, 5, 1, 3, 4].map((value, index) => ({ label: `Dia ${index + 1}`, value }))} /></div></Panel>
         </div>
       </section>
 
       <section id="viagem" aria-labelledby="trip-example-title" className="border-t border-border py-9">
-        <h2 id="trip-example-title" className="text-2xl font-semibold">03 / Viagem e rota</h2><p className="mt-2 text-sm text-muted-foreground">Exemplos fictícios · Datas locais de cada destino. Valores ilustrativos em EUR.</p>
-        <div className="mt-6 grid gap-5 xl:grid-cols-2"><TripCard trip={exampleTrip} today="2026-09-06" /><div className={panel}><h3 className="text-lg font-semibold">Uma viagem, vários destinos</h3><p className="mt-2 text-sm text-muted-foreground">Partida de Lisboa · Regresso a Lisboa</p><ol className="mt-6 space-y-5">{[["Tóquio", "3–8 abr. 2027", "Voo de Lisboa para Tóquio"], ["Quioto", "8–13 abr. 2027", "Comboio de Tóquio para Quioto"], ["Osaka", "13–17 abr. 2027", "Comboio de Quioto para Osaka"]].map(([city, dates, leg], index) => <li key={city} className="flex gap-4"><span className="flex size-8 shrink-0 items-center justify-center rounded-control border border-border text-sm text-link">{index + 1}</span><div><p className="font-medium">{city}</p><p className="text-sm text-muted-foreground">{dates}</p><p className="mt-1 text-xs text-muted-foreground">{leg}</p></div></li>)}</ol></div></div>
-        <div className={`${panel} mt-5`}><h3 className="text-lg font-semibold">Orçamento com contexto</h3><p className="mt-2 text-sm text-muted-foreground">Exemplos fictícios · Alojamento e transportes · Moeda base EUR.</p><dl className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">{[["Estimado", "4 200,00 EUR"], ["Reservado / comprometido", "2 800,00 EUR"], ["Pago", "1 600,00 EUR"], ["Real", "1 450,00 EUR"]].map(([label, amount]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-2 text-lg font-semibold">{amount}</dd></div>)}</dl></div>
+        <h2 id="trip-example-title" className="text-2xl font-semibold">04 / Viagem e rota</h2><p className="mt-2 text-sm text-muted-foreground">Exemplos fictícios · Datas locais de cada destino. Valores ilustrativos em EUR. As imagens são marcadores visuais gerados a partir do nome do destino.</p>
+        <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"><TripCard trip={exampleTrip} today="2026-09-06" /><div className={panel}><h3 className="text-lg font-semibold">Uma viagem, vários destinos</h3><p className="mt-2 text-sm text-muted-foreground">Partida de Lisboa · Regresso a Lisboa</p><ol className="scroll-row mt-5">{[["Tóquio", "3–8 abr. 2027"], ["Quioto", "8–13 abr. 2027"], ["Osaka", "13–17 abr. 2027"]].map(([city, dates], index) => <li key={city}><DestinationImage seed={city} className="h-40 w-48 rounded-2xl border border-border"><div className="flex h-full flex-col justify-between p-3 text-white"><span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{index + 1}</span><div><p className="font-semibold">{city}</p><p className="flex items-center gap-1 text-xs text-white/75"><Icon name="calendar" size={12} />{dates}</p></div></div></DestinationImage></li>)}</ol></div></div>
       </section>
       <section aria-labelledby="dashboard-example-title" className="border-t border-border py-9">
-        <h2 id="dashboard-example-title" className="text-2xl font-semibold">04 / Visão geral da viagem</h2>
-        <p className="mb-8 mt-2 text-sm text-warning">Exemplos fictícios · Demonstração do dashboard com totais ilustrativos, secções vazias e erro de documentos simulado.</p>
+        <h2 id="dashboard-example-title" className="text-2xl font-semibold">05 / Visão geral da viagem</h2>
+        <p className="mb-6 mt-2 text-sm text-warning">Exemplos fictícios · Demonstração do dashboard com totais ilustrativos, secções vazias e erro de documentos simulado.</p>
         <TripDashboard dashboard={exampleDashboard} today="2026-09-06" headingLevel={2} />
       </section>
-      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Inspirado na referência Notion dark, adaptado ao planeamento multidestino.</footer>
+      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Escuro + laranja, inspirado nas referências de layout de viagem do projeto.</footer>
     </main>
   </AppShell>);
 }

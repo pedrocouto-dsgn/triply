@@ -26,9 +26,9 @@ function contrast(first: string, second: string): number {
 describe("Triply dark theme contrast", () => {
   it.each([
     ["foreground", "background"], ["foreground", "card"],
-    ["muted-foreground", "card"], ["muted-foreground", "muted"],
+    ["muted-foreground", "card"], ["muted-foreground", "muted"], ["muted-foreground", "elevated"],
     ["primary-foreground", "primary"], ["primary-foreground", "primary-hover"],
-    ["primary-foreground", "danger"], ["link", "card"],
+    ["danger-foreground", "danger"], ["danger-foreground", "danger-hover"], ["link", "card"], ["link", "background"],
     ["success", "success-muted"], ["warning", "warning-muted"],
     ["destructive", "destructive-muted"],
   ])("%s text on %s meets AA for normal text", (text, background) => {
