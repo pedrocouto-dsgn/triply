@@ -741,6 +741,11 @@
       "date": "2026-10-05",
       "module": "visual-redesign-v2",
       "decision": "Owner replaced orange with lime green and asked for the layout/colours of the salesforce invoices reference, full-width banners with bottom gradient, and a collapsible sidebar. Design system v2.1."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "visual-redesign-v2",
+      "decision": "Owner asked for photos without an API key (Wikipedia used as keyless default, Unsplash optional), removal of the duplicate tab bar, moving trip management to trip settings, and replacing the attention card with a checklist preview (first 5 + 'Ver todas'). Owner reported migration 202610050011 applied."
     }
   ],
   "git_log": [
@@ -924,8 +929,8 @@
       "Not merged, pushed or deployed"
     ],
     "pending_owner_actions": [
-      "Apply supabase/migrations/202610050011_stop_images.sql in the Supabase SQL editor",
-      "Create an Unsplash access key and set UNSPLASH_ACCESS_KEY in .env.local and Vercel (Production and Preview)"
-    ]
+      "Optional: set UNSPLASH_ACCESS_KEY for Unsplash photos (Wikipedia is used without a key)"
+    ],
+    "migration_202610050011_applied": "owner reported applied 2026-10-05"
   }
 }

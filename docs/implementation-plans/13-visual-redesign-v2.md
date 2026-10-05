@@ -38,3 +38,12 @@ Scope additions: `features/media/*`, `features/route/images.ts`, `image-actions.
 
 Validation (v2.1): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 142/142; build PASS; E2E 9/9; harness 86/86. The route pop-up was tested in the browser (opens, shows details, closes with Esc, no page errors). No horizontal overflow at 375px.
 Pending owner actions: apply the migration in Supabase; create an Unsplash access key and set `UNSPLASH_ACCESS_KEY` in `.env.local` and in Vercel.
+
+## v2.2 — owner change requests (2026-10-05)
+1. Photos without an API key: Wikipedia REST summary (pt, then en), keyless. If the lead image is a flag, map or montage, the first real photo inside the article is used. Wikimedia only serves standard thumbnail widths (1280/1920), and the requests send an identifying User-Agent. Order: owner upload, then Unsplash (only if `UNSPLASH_ACCESS_KEY` is set), then Wikipedia, then illustration. Attribution: "Wikimedia Commons / Wikipedia" with a link to the article.
+2. The pill tab bar was removed from banners because it duplicated the sidebar.
+3. "Rota e destinos" was verified in the owner's browser: direct load and sidebar navigation both work. The earlier hang matched the first dev compile (~4.5 s with no feedback), so `app/(app)/trips/[tripId]/loading.tsx` now gives instant feedback.
+4. "Gerir viagem" (archive/delete) moved from the overview to trip settings (`#management`).
+5. The overview "Precisa de atenção" card became a Checklist card: the first 5 tasks plus a "Ver todas" link to `/planning#checklist-title`. The duplicate checklist ring was replaced by a "Transportes" status donut, and the Checklist stat tile by "Atividades". The next-step callout still uses the attention rules.
+
+Validation (v2.2): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 142/142; build PASS; E2E 9/9; harness 86/86. Checked in the owner's session: overview with Wikipedia photos, checklist card and route navigation.

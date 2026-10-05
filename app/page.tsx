@@ -3,7 +3,7 @@ import { Brand } from "@/components/shared/brand";
 import { ChartLegend, ColumnChart, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon, type IconName } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
-import { getPlacePhoto } from "@/features/media/unsplash";
+import { findPlacePhoto } from "@/features/media/photos";
 import { button, IconBadge } from "@/components/ui/page";
 
 const exampleRoute = [{ city: "Lisboa", country: "Portugal" }, { city: "Madrid", country: "Espanha" }, { city: "Paris", country: "França" }];
@@ -21,7 +21,7 @@ const features: { icon: IconName; title: string; description: string }[] = [
 ];
 
 export default async function HomePage() {
-  const [heroPhoto, ...photos] = await Promise.all([getPlacePhoto("Dolomites mountains road trip"), ...inspiration.map((place) => getPlacePhoto(`${place.city} ${place.country}`))]);
+  const [heroPhoto, ...photos] = await Promise.all([findPlacePhoto("Dolomitas"), ...inspiration.map((place) => findPlacePhoto(place.city, place.country))]);
   return <main className="min-h-screen bg-background text-foreground">
     <section className="relative">
       <DestinationImage seed="Triply Alpes ao pôr do sol" variant={0} image={heroPhoto} overlay="bottom" showCredit className="w-full">
@@ -43,7 +43,7 @@ export default async function HomePage() {
     </section>
 
     <section aria-labelledby="inspiration-title" className="mx-auto mt-16 max-w-7xl px-4 sm:px-8">
-      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-link">Inspiração</p><h2 id="inspiration-title" className="mt-2 text-3xl font-semibold tracking-tight">Para onde vai a seguir?</h2></div><p className="text-sm text-muted-foreground">Exemplos ilustrativos · as imagens são marcadores visuais.</p></div>
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-link">Inspiração</p><h2 id="inspiration-title" className="mt-2 text-3xl font-semibold tracking-tight">Para onde vai a seguir?</h2></div><p className="text-sm text-muted-foreground">Exemplos ilustrativos · fotos da Wikipedia.</p></div>
       <div className="scroll-row mt-6">{inspiration.map((place, index) => <DestinationImage key={place.city} seed={place.city} image={photos[index]} className="h-64 w-56 rounded-card border border-border sm:w-64"><div className="flex h-full flex-col justify-between p-4 text-white"><span className="w-fit rounded-full bg-black/40 px-2.5 py-1 text-xs backdrop-blur">{place.tag}</span><div><p className="text-xl font-semibold">{place.city}</p><p className="flex items-center gap-1 text-sm text-white/75"><Icon name="mapPin" size={14} />{place.country}</p></div></div></DestinationImage>)}</div>
     </section>
 

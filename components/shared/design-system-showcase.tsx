@@ -107,7 +107,7 @@ export function DesignSystemShowcase() {
       <section aria-labelledby="dashboard-example-title" className="border-t border-border py-9">
         <h2 id="dashboard-example-title" className="text-2xl font-semibold">05 / Visão geral da viagem</h2>
         <p className="mb-6 mt-2 text-sm text-warning">Exemplos fictícios · Demonstração do dashboard com totais ilustrativos, secções vazias e erro de documentos simulado.</p>
-        <PageHero bleed={false} seed="Tóquio" headingLevel={2} eyebrow={<><Icon name="calendar" size={14} />3 abr. 2027 — 17 abr. 2027</>} title={exampleTrip.name} meta={<><HeroChip icon="sun">15 dias</HeroChip><HeroChip icon="users">2 viajantes</HeroChip></>}><TripTabsPreview /></PageHero>
+        <PageHero bleed={false} seed="Tóquio" headingLevel={2} eyebrow={<><Icon name="calendar" size={14} />3 abr. 2027 — 17 abr. 2027</>} title={exampleTrip.name} meta={<><HeroChip icon="sun">15 dias</HeroChip><HeroChip icon="users">2 viajantes</HeroChip></>} />
         <div className="mt-4"><TripDashboard dashboard={exampleDashboard} today="2026-09-06" /></div>
       </section>
       <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Carvão + verde-lima, inspirado nas referências de layout do projeto.</footer>
@@ -115,6 +115,3 @@ export function DesignSystemShowcase() {
   </AppShell>);
 }
 
-function TripTabsPreview() {
-  return <div aria-hidden="true" className="scroll-row w-fit max-w-full rounded-full border border-white/10 bg-black/45 p-1.5 backdrop-blur-md">{["Visão geral", "Rota", "Orçamento", "Poupança", "Itinerário"].map((label, index) => <span key={label} className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium ${index === 0 ? "bg-primary text-primary-foreground" : "text-white/80"}`}>{label}</span>)}</div>;
-}

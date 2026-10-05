@@ -4,22 +4,17 @@ import { ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon, travelModeIcons, type IconName } from "@/components/ui/icons";
 import { Badge, IconBadge, StatTile, type Tone } from "@/components/ui/page";
 import type { PlaceImage } from "@/features/media/types";
+import { checklistCategoryLabels } from "@/features/planning/labels";
 import { RouteCarousel } from "@/features/route/components/route-carousel";
 import { deriveDocumentValidity } from "@/features/documents/helpers";
 import { documentTypeLabels } from "@/features/documents/labels";
 import { formatMinorUnits } from "@/features/trips/money";
 import { buildAttention, financialHealth, routeContext, upcomingItinerary } from "../aggregation";
-import type { AttentionTier, DashboardData, SectionResult } from "../types";
+import type { DashboardData, SectionResult } from "../types";
 
 const travelModeLabels = { plane: "Avião", train: "Comboio", bus: "Autocarro", car: "Carro", ferry: "Ferry", other: "Outro" };
 const healthLabels = { no_budget: "Sem orçamento definido", within_budget: "Dentro do orçamento", near_budget: "Próximo do orçamento", over_budget: "Acima do orçamento" };
 const healthTones: Record<keyof typeof healthLabels, Tone> = { no_budget: "neutral", within_budget: "success", near_budget: "warning", over_budget: "danger" };
-const tierMeta: Record<AttentionTier, { label: string; tone: Tone; icon: IconName }> = {
-  critical: { label: "Crítico", tone: "danger", icon: "alert" },
-  high: { label: "Prioridade alta", tone: "warning", icon: "alert" },
-  medium: { label: "Prioridade média", tone: "primary", icon: "clock" },
-  low: { label: "Informação", tone: "neutral", icon: "sparkles" },
-};
 const money = (value: bigint | null, currency: DashboardData["trip"]["baseCurrency"]) => formatMinorUnits(value?.toString() ?? null, currency) ?? "—";
 const max0 = (value: bigint) => (value > 0n ? value : 0n);
 
@@ -35,11 +30,12 @@ export function TripDashboard({ dashboard, today, images = {} }: {
   const planning = dashboard.planning.status === "ready" ? dashboard.planning.data : null;
   const documents = dashboard.documents.status === "ready" ? dashboard.documents.data : null;
   const attention = buildAttention({ trip, today, health, savings, route: dashboard.route.status === "ready" ? dashboard.route.data : null, planning, documents });
-  const cta = !route?.stopCount ? { label: "Adicionar primeiro destino", href: `/trips/${trip.id}/destinations/new` } : dashboard.finance.status !== "ready" || !dashboard.finance.data.data.costs.length ? { label: "Planear orçamento", href: `/trips/${trip.id}/finance` } : dashboard.itinerary.status !== "ready" || !dashboard.itinerary.data.length ? { label: "Planear itinerário", href: `/trips/${trip.id}/itinerary/new` } : attention.length ? { label: "Rever tarefas da viagem", href: "#attention" } : { label: "Ver itinerário", href: `/trips/${trip.id}/itinerary` };
+  const cta = !route?.stopCount ? { label: "Adicionar primeiro destino", href: `/trips/${trip.id}/destinations/new` } : dashboard.finance.status !== "ready" || !dashboard.finance.data.data.costs.length ? { label: "Planear orçamento", href: `/trips/${trip.id}/finance` } : dashboard.itinerary.status !== "ready" || !dashboard.itinerary.data.length ? { label: "Planear itinerário", href: `/trips/${trip.id}/itinerary/new` } : attention.length ? { label: "Rever tarefas da viagem", href: `/trips/${trip.id}/planning` } : { label: "Ver itinerário", href: `/trips/${trip.id}/itinerary` };
   const progressPercent = savings?.progressBasisPoints != null ? Number(savings.progressBasisPoints) / 100 : 0;
   const checklist = planning?.checklist ?? [];
   const checklistDone = checklist.filter((item) => item.isCompleted).length;
   const reservations = planning?.reservations.filter((item) => !item.archivedAt) ?? [];
+  const legs = dashboard.route.status === "ready" ? dashboard.route.data.legs.filter((leg) => leg.status !== "cancelled") : [];
   const upcoming = dashboard.itinerary.status === "ready" ? upcomingItinerary(dashboard.itinerary.data, today) : [];
 
   return <>
@@ -48,7 +44,7 @@ export function TripDashboard({ dashboard, today, images = {} }: {
       <StatTile icon="mapPin" label="Destinos" value={route?.stopCount ?? "—"} hint={route ? `${route.countryCount} ${route.countryCount === 1 ? "país" : "países"}` : undefined} />
       <StatTile icon="wallet" tone={healthTones[health]} label="Orçamento" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Não definido"} hint={healthLabels[health]} />
       <StatTile icon="piggy" tone="success" label="Financiado" value={savings?.targetMinor != null ? `${Math.round(progressPercent)}%` : "—"} hint={savings?.targetMinor != null ? `${money(savings.totalFundedMinor, trip.baseCurrency)} de ${money(savings.targetMinor, trip.baseCurrency)}` : "Sem objetivo"} />
-      <StatTile icon="checklist" tone="neutral" label="Checklist" value={planning ? `${checklistDone}/${checklist.length}` : "—"} hint="tarefas concluídas" />
+      <StatTile icon="calendar" tone="neutral" label="Atividades" value={dashboard.itinerary.status === "ready" ? dashboard.itinerary.data.filter((item) => item.status === "active").length : "—"} hint={`${upcoming.length ? "próximas planeadas" : "no itinerário"}`} />
     </div>
 
     <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -66,12 +62,17 @@ export function TripDashboard({ dashboard, today, images = {} }: {
     </> : dashboard.route.status === "ready" ? <EmptyLine icon="mapPin">Ainda não existem destinos.</EmptyLine> : null}</Card>
 
     <div className="mt-4 grid gap-4 lg:grid-cols-2">
-      <section id="attention" aria-labelledby="attention-title" className="min-w-0 rounded-card bg-light p-5 text-light-foreground sm:p-6">
-        <div className="flex items-center gap-3"><IconBadge icon="alert" tone={attention.length ? "warning" : "success"} size="sm" /><h2 id="attention-title" className="text-base font-semibold">Precisa de atenção</h2>{attention.length ? <Badge tone="warning" className="ml-auto">{attention.length}</Badge> : null}</div>
-        {attention.length ? <div className="mt-4 space-y-2">{attention.map((item) => <Link key={item.key} href={item.href} className="flex items-start gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 transition-colors hover:border-black/30">
-          <IconBadge icon={tierMeta[item.tier].icon} tone={tierMeta[item.tier].tone} size="sm" />
-          <span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide text-black/55">{tierMeta[item.tier].label}</span><span className="mt-0.5 block font-semibold">{item.title}</span><span className="mt-0.5 block text-sm text-black/60">{item.detail}</span></span>
-        </Link>)}</div> : <p className="mt-4 flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 text-sm text-black/65"><Icon name="check" size={18} />Nada urgente precisa da sua atenção.</p>}
+      <section id="checklist" aria-labelledby="checklist-title" className="min-w-0 rounded-card bg-light p-5 text-light-foreground sm:p-6">
+        <div className="flex flex-wrap items-center gap-3"><IconBadge icon="checklist" tone="success" size="sm" /><div className="min-w-0 flex-1"><h2 id="checklist-title" className="text-base font-semibold">Checklist</h2>{planning ? <p className="text-xs text-black/55">{checklistDone} de {checklist.length} concluídas</p> : null}</div><Link href={`/trips/${trip.id}/planning#checklist-title`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-light-foreground px-4 text-sm font-semibold text-light hover:opacity-85">Ver todas<Icon name="arrowRight" size={15} /></Link></div>
+        {dashboard.planning.status === "error" ? <p role="alert" className="mt-4 rounded-2xl bg-destructive-muted p-4 text-sm text-destructive">Não foi possível carregar esta secção. Tente novamente.</p> : checklist.length ? <>
+          {checklist.length ? <div aria-hidden="true" className="mt-4 h-2 overflow-hidden rounded-full bg-black/10"><div className="h-full rounded-full bg-success" style={{ width: `${(checklistDone / checklist.length) * 100}%` }} /></div> : null}
+          <ul className="mt-4 space-y-2">{checklist.slice(0, 5).map((item) => <li key={item.id}><Link href={`/trips/${trip.id}/planning/checklist/${item.id}/edit`} className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 transition-colors hover:border-black/30">
+            <span aria-hidden="true" className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${item.isCompleted ? "border-transparent bg-light-foreground text-light" : "border-black/25"}`}>{item.isCompleted ? <Icon name="check" size={14} strokeWidth={2.6} /> : null}</span>
+            <span className="min-w-0 flex-1"><span className={`block truncate font-medium ${item.isCompleted ? "text-black/45 line-through" : ""}`}>{item.title}</span><span className="block text-xs text-black/55">{checklistCategoryLabels[item.category]}{item.dueDate ? ` · até ${item.dueDate}` : ""}</span></span>
+            <span className="sr-only">{item.isCompleted ? "Concluída" : "Por fazer"}</span>
+          </Link></li>)}</ul>
+          {checklist.length > 5 ? <p className="mt-3 text-xs text-black/55">+ {checklist.length - 5} tarefas na checklist completa.</p> : null}
+        </> : <div className="mt-4 rounded-2xl border border-black/10 bg-white p-4 text-sm text-black/65"><p>A checklist ainda está vazia.</p><Link href={`/trips/${trip.id}/planning#checklist-title`} className="mt-2 inline-flex font-semibold text-light-foreground underline">Criar checklist</Link></div>}
       </section>
       <Card title="Próximo itinerário" icon="calendar" href={`/trips/${trip.id}/itinerary`} result={dashboard.itinerary}>{dashboard.itinerary.status === "ready" ? upcoming.length ? <ol className="space-y-2">{upcoming.map((item) => {
         const [, month, day] = item.tripDate.split("-");
@@ -85,7 +86,11 @@ export function TripDashboard({ dashboard, today, images = {} }: {
         { label: "Planeadas", value: reservations.filter((item) => item.status === "planned").length, color: "var(--chart-2)" },
         { label: "Por rever", value: reservations.filter((item) => item.needsReview).length, color: "var(--chart-1)" },
       ]} /> : null}</Card>
-      <Card title="Checklist" icon="checklist" href={`/trips/${trip.id}/planning`} result={dashboard.planning}>{planning ? <div className="flex items-center gap-5"><RingProgress size={112} thickness={11} color="var(--chart-3)" percent={checklist.length ? (checklistDone / checklist.length) * 100 : 0} label="Progresso da checklist" /><p className="text-sm text-muted-foreground"><strong className="block text-2xl font-semibold text-foreground">{checklistDone} de {checklist.length}</strong>concluídas</p></div> : null}</Card>
+      <Card title="Transportes" icon="plane" href={`/trips/${trip.id}/route`} result={dashboard.route}>{dashboard.route.status === "ready" ? <DonutBlock label="Transportes por estado" total={legs.length} unit={legs.length === 1 ? "trajeto" : "trajetos"} segments={[
+        { label: "Reservados ou pagos", value: legs.filter((leg) => leg.status === "booked" || leg.status === "paid" || leg.status === "completed").length, color: "var(--chart-3)" },
+        { label: "Planeados", value: legs.filter((leg) => leg.status === "planned").length, color: "var(--chart-2)" },
+        { label: "Por rever", value: legs.filter((leg) => leg.reviewRequired).length, color: "var(--chart-6)" },
+      ]} /> : null}</Card>
       <Card title="Documentos" icon="file" href={`/trips/${trip.id}/documents`} result={dashboard.documents}>{documents?.length ? <>
         <DonutBlock label="Documentos por validade" total={documents.length} unit="registos" segments={[
           { label: "Válidos", value: documents.filter((item) => ["valid", "no_expiry"].includes(deriveDocumentValidity(item.expiryDate, today))).length, color: "var(--chart-3)" },

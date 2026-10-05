@@ -1,4 +1,4 @@
-import { getPlacePhoto } from "@/features/media/unsplash";
+import { findPlacePhoto } from "@/features/media/photos";
 import type { PlaceImage } from "@/features/media/types";
 import { requireTripUser } from "@/features/trips/queries";
 import type { Stop } from "./types";
@@ -30,7 +30,7 @@ export async function resolveStopImages(stops: Pick<Stop, "id" | "placeName" | "
     }
   }
   const missing = stops.filter((stop) => !result[stop.id]);
-  const photos = await Promise.all(missing.map((stop) => getPlacePhoto(`${stop.placeName} ${stop.countryName}`)));
+  const photos = await Promise.all(missing.map((stop) => findPlacePhoto(stop.placeName, stop.countryName)));
   missing.forEach((stop, index) => { const photo = photos[index]; if (photo) result[stop.id] = { ...photo, alt: stop.placeName }; });
   return result;
 }

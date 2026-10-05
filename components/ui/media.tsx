@@ -59,7 +59,7 @@ export function SceneArt({ seed, className, variant }: { seed: string; className
 export function DestinationImage({ seed, image, className, children, overlay = true, label, variant, showCredit = false }: { seed: string; image?: PlaceImage | null; className?: string; children?: ReactNode; overlay?: boolean | "bottom"; label?: string; variant?: number; showCredit?: boolean }) {
   return <div role={label ? "img" : undefined} aria-label={label} className={cn("relative isolate overflow-hidden bg-muted", className)}>
     {image ? <img src={image.src} alt={label ? "" : image.alt} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="absolute inset-0 size-full object-cover" /> : <SceneArt seed={seed} variant={variant} />}
-    {overlay === "bottom" ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-black/10" /> : overlay ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" /> : null}
+    {overlay === "bottom" ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-background via-background/35 to-transparent" /> : overlay ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" /> : null}
     {children ? <div className="relative h-full">{children}</div> : null}
     {showCredit && image?.credit ? <ImageCredit image={image} /> : null}
   </div>;
