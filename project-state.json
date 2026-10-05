@@ -761,6 +761,11 @@
       "date": "2026-10-05",
       "module": "07-reservations-checklists",
       "decision": "Owner requested in-place checklist ticking on the overview (task fades out), a single checklist page (to do + completed/archived + add) with reservations below, removal of trip status cards from the trips page, and a softer glow on the next-step card."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "visual-redesign-v2",
+      "decision": "Owner requested an independent banner image for 'Todas as viagens' (not tied to any destination). Added profiles.trips_banner_path + owner upload policy (migration 202610050013) and /settings/banner. Owner explicitly authorized commit, push of the branch and production deploy on Vercel."
     }
   ],
   "git_log": [
@@ -944,6 +949,7 @@
       "Not merged, pushed or deployed"
     ],
     "pending_owner_actions": [
+      "Apply supabase/migrations/202610050013_trips_banner.sql in Supabase (needed to upload the 'Todas as viagens' banner)",
       "Optional: UNSPLASH_ACCESS_KEY"
     ],
     "migration_202610050011_applied": "owner reported applied 2026-10-05"

@@ -77,3 +77,7 @@ Palette from `Refs/cores.jpg`: deep black, emerald, gradients and glows (see spe
 
 Validation (v2.6): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145; build PASS; harness 86/86; E2E 9/9 on two consecutive runs after the timeout change.
 Checked in the owner's session: ticking and reopening works in place. Note: a click made before hydration is replayed by React once the page hydrates, so one test click completed "Verificar validade do passaporte". It was reopened, leaving the checklist as before (8 to do, 0 completed).
+
+## v2.7 — independent "Todas as viagens" banner (2026-10-05)
+The trips page banner no longer uses the first destination of the next trip. It is stored on the profile (`profiles.trips_banner_path`, migration `202610050013_trips_banner.sql`; objects at `{user_id}/banner/*` in the private bucket) and edited at `/settings/banner`. Default: a fixed Wikipedia travel photo (Dolomitas). The shared `ImageUploadForm` now backs both destination and banner uploads.
+Validation: tsc PASS; eslint 0 errors; unit 145/145; build PASS; E2E 9/9; harness 86/86. Checked in the owner's session.

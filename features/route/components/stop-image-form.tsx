@@ -6,11 +6,19 @@ import { DestinationImage } from "@/components/ui/media";
 import { button } from "@/components/ui/page";
 import type { PlaceImage } from "@/features/media/types";
 import { removeStopImageAction, uploadStopImageAction } from "../image-actions";
-import { initialStopImageState, MAX_STOP_IMAGE_BYTES, STOP_IMAGE_HINT } from "../image-types";
+import { initialStopImageState, MAX_STOP_IMAGE_BYTES, STOP_IMAGE_HINT, type StopImageState } from "../image-types";
+
+type UploadAction = (state: StopImageState, data: FormData) => Promise<StopImageState>;
+type RemoveAction = (state: StopImageState) => Promise<StopImageState>;
 
 export function StopImageForm({ tripId, stopId, placeName, image, hasUpload }: { tripId: string; stopId: string; placeName: string; image: PlaceImage | null; hasUpload: boolean }) {
-  const [uploadState, uploadAction, uploading] = useActionState(uploadStopImageAction.bind(null, tripId, stopId), initialStopImageState);
-  const [removeState, removeAction, removing] = useActionState(removeStopImageAction.bind(null, tripId, stopId), initialStopImageState);
+  return <ImageUploadForm upload={uploadStopImageAction.bind(null, tripId, stopId)} remove={removeStopImageAction.bind(null, tripId, stopId)} placeName={placeName} image={image} hasUpload={hasUpload} removeHint="Sem imagem própria, o destino volta a usar uma foto automática ou ilustração." />;
+}
+
+/** Image upload with preview, recommended-size hint and optional removal. */
+export function ImageUploadForm({ upload, remove, placeName, image, hasUpload, removeHint }: { upload: UploadAction; remove: RemoveAction; placeName: string; image: PlaceImage | null; hasUpload: boolean; removeHint: string }) {
+  const [uploadState, uploadAction, uploading] = useActionState(upload, initialStopImageState);
+  const [removeState, removeAction, removing] = useActionState(remove, initialStopImageState);
   const [preview, setPreview] = useState<string | null>(null);
   const [note, setNote] = useState<{ tone: "ok" | "warn"; text: string } | null>(null);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -44,7 +52,7 @@ export function StopImageForm({ tripId, stopId, placeName, image, hasUpload }: {
     {hasUpload ? <form action={removeAction} className="mt-4 border-t border-border pt-4">
       {removeState.message ? <p role="alert" className="mb-2 text-sm text-destructive">{removeState.message}</p> : null}
       <button disabled={removing} className={button.ghost}><Icon name="trash" size={16} />{removing ? "A remover…" : "Remover a minha imagem"}</button>
-      <p className="mt-1 text-xs text-muted-foreground">Sem imagem própria, o destino volta a usar uma foto automática ou ilustração.</p>
+      <p className="mt-1 text-xs text-muted-foreground">{removeHint}</p>
     </form> : null}
   </div>;
 }

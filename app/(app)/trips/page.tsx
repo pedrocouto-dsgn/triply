@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
 import { button, EmptyState, HeroChip, PageContainer, PageHero, SectionHeader } from "@/components/ui/page";
+import { getTripsBanner } from "@/features/profile/banner";
 import { getTripCovers } from "@/features/route/images";
 import { formatTripDateRange } from "@/features/trips/date";
 import { countdownText, TripCard } from "@/features/trips/components/trip-card";
@@ -14,7 +15,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
-  const [trips, query] = await Promise.all([listOwnedTrips(), searchParams]);
+  const [trips, query, banner] = await Promise.all([listOwnedTrips(), searchParams, getTripsBanner()]);
   const today = todayInLisbon();
   const activeTrips = sortActiveTrips(trips.filter((trip) => trip.archivedAt === null), today);
   const archivedTrips = trips.filter((trip) => trip.archivedAt !== null).sort((left, right) => (right.archivedAt ?? "").localeCompare(left.archivedAt ?? ""));
@@ -23,11 +24,11 @@ export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
   const covers = await getTripCovers(trips.map((trip) => trip.id)).catch(() => ({} as Awaited<ReturnType<typeof getTripCovers>>));
 
   return (
-    <PageContainer hero={trips.length && featured ? <PageHero seed={featured.name} image={covers[featured.id]} size="md"
+    <PageContainer hero={trips.length ? <PageHero seed="As suas viagens" image={banner.image} size="md"
       eyebrow={<><Icon name="sparkles" size={14} />Planeie. Organize. Parta.</>} title="As suas viagens"
-      description={<>Próxima: <strong className="font-semibold text-foreground">{featured.name}</strong> · {formatTripDateRange(featured.startDate, featured.endDate)}</>}
-      meta={<HeroChip icon="clock">{countdownText(featured, today)}</HeroChip>}
-      actions={<Link href={`/trips/${featured.id}/cover`} className={button.glass}><Icon name="image" size={16} />Alterar capa</Link>} /> : undefined}>
+      description={featured ? <>Próxima: <strong className="font-semibold text-foreground">{featured.name}</strong> · {formatTripDateRange(featured.startDate, featured.endDate)}</> : "As viagens que planeou, num só lugar."}
+      meta={featured ? <HeroChip icon="clock">{countdownText(featured, today)}</HeroChip> : undefined}
+      actions={<Link href="/settings/banner" className={button.glass}><Icon name="image" size={16} />Alterar capa</Link>} /> : undefined}>
       <div className="mb-6 empty:hidden"><StatusMessage kind={status} /></div>
       {trips.length === 0 ? <section>
         <DestinationImage seed="Primeira viagem" className="rounded-feature border border-border">
@@ -40,7 +41,6 @@ export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
         </DestinationImage>
       </section> : <div className="space-y-10">
         <section aria-labelledby="active-trips-heading">
-          {featured ? null : <div className="mb-4 rounded-feature border border-border bg-card p-8"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-link">Planeie. Organize. Parta.</p><h1 id="active-trips-title" className="mt-3 text-4xl font-light tracking-tight">As suas viagens</h1><p className="mt-3 text-sm text-muted-foreground">Não há viagens futuras. Crie uma nova para começar a planear.</p></div>}
           <div><SectionHeader id="active-trips-heading" title="Viagens ativas" description={`${activeTrips.length} ${activeTrips.length === 1 ? "viagem ativa" : "viagens ativas"}`} action={<Link href="/trips/new" className={button.primary}><Icon name="plus" size={16} />Criar viagem</Link>} /></div>
           {activeTrips.length === 0 ? <EmptyState className="mt-5" icon="compass" title="Não existem viagens ativas" description="Pode restaurar uma viagem arquivada ou criar uma nova." action={<Link href="/trips/new" className={button.primary}>Criar viagem</Link>} /> : <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{activeTrips.map((trip) => <TripCard key={trip.id} trip={trip} today={today} image={covers[trip.id]} />)}</div>}
         </section>
