@@ -2,7 +2,7 @@
   "project": "Triply",
   "version": "0.1",
   "mode": "autonomous_with_gates",
-  "last_updated": "2026-10-05T12:30:00+01:00",
+  "last_updated": "2026-10-05T15:00:00+01:00",
   "current_module": "01-auth-onboarding",
   "current_stage": "architecture",
   "status": "code_present_lifecycle_reconciliation_pending",
@@ -756,6 +756,11 @@
       "date": "2026-10-05",
       "module": "visual-redesign-v2",
       "decision": "Owner confirmed migration 202610050012 applied. Owner requested sidebar welcome + trip list, trimmed trips page buttons, smaller route cards with destination detail page, pin map markers zoomed out, drag-and-drop reorder, and an itinerary filter by destination."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "07-reservations-checklists",
+      "decision": "Owner requested in-place checklist ticking on the overview (task fades out), a single checklist page (to do + completed/archived + add) with reservations below, removal of trip status cards from the trips page, and a softer glow on the next-step card."
     }
   ],
   "git_log": [
@@ -919,7 +924,7 @@
         "preexisting_warnings": 14
       },
       "unit_tests": {
-        "passed": 142,
+        "passed": 145,
         "failed": 0
       },
       "build": "pass",

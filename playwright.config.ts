@@ -6,6 +6,8 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: "html",
+  // The dev server compiles each page on first request; allow for that instead of failing intermittently.
+  expect: { timeout: 15_000 },
   use: {
     baseURL: "http://127.0.0.1:3100",
     trace: "on-first-retry",

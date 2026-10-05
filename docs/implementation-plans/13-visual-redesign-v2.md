@@ -68,3 +68,12 @@ Validation (v2.4): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145
 
 ## v2.5 — "cores" palette and light effects (2026-10-05)
 Palette from `Refs/cores.jpg`: deep black, emerald, gradients and glows (see spec 00 v2.2). Map: smaller pins (0.55×), smaller labels, thinner and finer dotted line in the bright emerald. Larger user name in the sidebar.
+
+## v2.6 — checklist in place, single checklist page, simpler trips page (2026-10-05)
+- Overview checklist card: ticking a task calls `setChecklistDoneAction` (no redirect). The row animates (check, fade, collapse) and the list refreshes with the remaining pending tasks (up to 5). "Ver todas" opens Planeamento.
+- Planeamento: a single Checklist section (progress ring, "Por fazer", collapsible "Concluídas" that can be reopened, add/starter) with Reservas below, no longer side by side. `ToggleTask` was removed (unused).
+- Trips page: status donut and count tiles removed. "Próximo passo" uses a softer `glow-soft` hover.
+- E2E: `expect.timeout` raised to 15 s in `playwright.config.ts`. The first dev compile intermittently exceeded the 5 s default (seen twice on `toContainText`).
+
+Validation (v2.6): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145; build PASS; harness 86/86; E2E 9/9 on two consecutive runs after the timeout change.
+Checked in the owner's session: ticking and reopening works in place. Note: a click made before hydration is replayed by React once the page hydrates, so one test click completed "Verificar validade do passaporte". It was reopened, leaving the checklist as before (8 to do, 0 completed).
