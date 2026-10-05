@@ -915,7 +915,7 @@
       "git_integration": "connected (push to main deploys)",
       "production_url": "https://triply-plum.vercel.app",
       "deployed_at": "2026-10-05",
-      "deployed_commit": "02db1ed",
+      "deployed_commit": "5ccdb3d",
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL (Production+Preview)",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Production+Preview)",
@@ -972,7 +972,7 @@
     }
   },
   "owner_corrections_2026_10_05": {
-    "status": "deploying_production",
+    "status": "deployed_production",
     "branch": "feat/owner-corrections",
     "migration": "supabase/migrations/202610050014_owner_corrections.sql",
     "pending_owner_actions": [
@@ -1002,6 +1002,15 @@
       "Authenticated flows not exercised against the live Supabase project (no test account); the expense 'paid' error was not reproduced live — fixed from code analysis (UTC payment date, idempotent create, detailed error codes)",
       "Document upload now goes browser → Storage directly; depends on the storage insert policy from migration 202609010010"
     ],
-    "migration_202610050014_applied": "owner reported applied 2026-10-05"
+    "migration_202610050014_applied": "owner reported applied 2026-10-05",
+    "deployed": {
+      "date": "2026-10-05",
+      "commit": "5ccdb3d",
+      "branch_pushed": "origin/feat/owner-corrections",
+      "main_fast_forwarded": true,
+      "vercel_production": "Ready (GitHub status: Deployment has completed)",
+      "url": "https://triply-plum.vercel.app",
+      "smoke": "landing 200; protected routes incl. new /documents/[id] redirect to sign-in when signed out"
+    }
   }
 }
