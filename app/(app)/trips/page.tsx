@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { ChartLegend, DonutChart } from "@/components/ui/charts";
 import { Icon } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
-import { button, EmptyState, HeroChip, PageContainer, PageHero, SectionHeader, StatTile } from "@/components/ui/page";
+import { button, EmptyState, HeroChip, PageContainer, PageHero, SectionHeader } from "@/components/ui/page";
 import { getTripCovers } from "@/features/route/images";
 import { formatTripDateRange } from "@/features/trips/date";
 import { countdownText, TripCard } from "@/features/trips/components/trip-card";
 import { StatusMessage } from "@/features/trips/components/status-message";
-import { deriveTripLifecycle, lifecycleLabels, sortActiveTrips, todayInLisbon } from "@/features/trips/lifecycle";
+import { deriveTripLifecycle, sortActiveTrips, todayInLisbon } from "@/features/trips/lifecycle";
 import { listOwnedTrips } from "@/features/trips/queries";
 
 function firstValue(value: string | string[] | undefined): string | undefined {
@@ -21,9 +20,7 @@ export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
   const archivedTrips = trips.filter((trip) => trip.archivedAt !== null).sort((left, right) => (right.archivedAt ?? "").localeCompare(left.archivedAt ?? ""));
   const status = firstValue(query.archived) ? "archived" : firstValue(query.deleted) ? "deleted" : undefined;
   const featured = activeTrips.find((trip) => deriveTripLifecycle(trip, today) !== "past") ?? null;
-  const counts = (["ongoing", "upcoming", "past", "archived"] as const).map((lifecycle) => ({ lifecycle, count: trips.filter((trip) => deriveTripLifecycle(trip, today) === lifecycle).length }));
   const covers = await getTripCovers(trips.map((trip) => trip.id)).catch(() => ({} as Awaited<ReturnType<typeof getTripCovers>>));
-  const statusSegments = counts.map(({ lifecycle, count }) => ({ label: lifecycleLabels[lifecycle], value: count, display: String(count) }));
 
   return (
     <PageContainer hero={trips.length && featured ? <PageHero seed={featured.name} image={covers[featured.id]} size="md"
@@ -42,16 +39,9 @@ export default async function TripsPage({ searchParams }: PageProps<"/trips">) {
           </div>
         </DestinationImage>
       </section> : <div className="space-y-10">
-        <section aria-labelledby={featured ? "trip-status-title" : "active-trips-title"}>
+        <section aria-labelledby="active-trips-heading">
           {featured ? null : <div className="mb-4 rounded-feature border border-border bg-card p-8"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-link">Planeie. Organize. Parta.</p><h1 id="active-trips-title" className="mt-3 text-4xl font-light tracking-tight">As suas viagens</h1><p className="mt-3 text-sm text-muted-foreground">Não há viagens futuras. Crie uma nova para começar a planear.</p></div>}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-            <section aria-labelledby="trip-status-title" className="rounded-card border border-border bg-card p-6">
-              <h2 id="trip-status-title" className="font-semibold">Estado das viagens</h2>
-              <div className="mt-5 flex flex-wrap items-center gap-6"><DonutChart size={136} thickness={16} label={`Estado das viagens: ${statusSegments.map((segment) => `${segment.label} ${segment.display}`).join(", ")}`} segments={statusSegments} center={<><span className="text-2xl font-semibold">{trips.length}</span><span className="text-xs text-muted-foreground">{trips.length === 1 ? "viagem" : "viagens"}</span></>} /><ChartLegend segments={statusSegments} className="min-w-36 flex-1" /></div>
-            </section>
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3"><StatTile icon="compass" label="Viagens ativas" value={activeTrips.length} /><StatTile icon="plane" tone="success" label="Próximas e a decorrer" value={counts[0].count + counts[1].count} /><StatTile icon="archive" tone="neutral" label="Arquivadas" value={archivedTrips.length} /></div>
-          </div>
-          <div className="mt-8"><SectionHeader title="Viagens ativas" description={`${activeTrips.length} ${activeTrips.length === 1 ? "viagem ativa" : "viagens ativas"}`} action={<Link href="/trips/new" className={button.primary}><Icon name="plus" size={16} />Criar viagem</Link>} /></div>
+          <div><SectionHeader id="active-trips-heading" title="Viagens ativas" description={`${activeTrips.length} ${activeTrips.length === 1 ? "viagem ativa" : "viagens ativas"}`} action={<Link href="/trips/new" className={button.primary}><Icon name="plus" size={16} />Criar viagem</Link>} /></div>
           {activeTrips.length === 0 ? <EmptyState className="mt-5" icon="compass" title="Não existem viagens ativas" description="Pode restaurar uma viagem arquivada ou criar uma nova." action={<Link href="/trips/new" className={button.primary}>Criar viagem</Link>} /> : <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{activeTrips.map((trip) => <TripCard key={trip.id} trip={trip} today={today} image={covers[trip.id]} />)}</div>}
         </section>
         <section aria-labelledby="archived-trips-title" className="border-t border-border pt-8">

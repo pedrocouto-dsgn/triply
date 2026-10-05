@@ -6,6 +6,7 @@ import { IconBadge, StatTile, type Tone } from "@/components/ui/page";
 import { categoryTotals, expenseRows } from "@/features/finance/budget";
 import type { PlaceImage } from "@/features/media/types";
 import { checklistCategoryLabels } from "@/features/planning/labels";
+import { ChecklistRow } from "@/features/planning/components/checklist-row";
 import { RouteCarousel } from "@/features/route/components/route-carousel";
 import { deriveDocumentValidity } from "@/features/documents/helpers";
 import { documentTypeLabels } from "@/features/documents/labels";
@@ -34,12 +35,13 @@ export function TripDashboard({ dashboard, today, images = {} }: {
   const progressPercent = savings?.progressBasisPoints != null ? Number(savings.progressBasisPoints) / 100 : 0;
   const checklist = planning?.checklist ?? [];
   const checklistDone = checklist.filter((item) => item.isCompleted).length;
+  const pendingTasks = checklist.filter((item) => !item.isCompleted);
   const reservations = planning?.reservations.filter((item) => !item.archivedAt) ?? [];
   const legs = dashboard.route.status === "ready" ? dashboard.route.data.legs.filter((leg) => leg.status !== "cancelled") : [];
   const upcoming = dashboard.itinerary.status === "ready" ? upcomingItinerary(dashboard.itinerary.data, today) : [];
 
   return <>
-    <Link href={cta.href} className="group mb-4 flex items-center gap-4 rounded-card bg-primary p-4 text-primary-foreground sm:p-5"><span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-black/10"><Icon name="sparkles" size={20} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide opacity-70">Próximo passo</span><span className="block text-lg font-semibold">{cta.label}</span></span><span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-black/10 transition-transform group-hover:translate-x-1"><Icon name="arrowRight" size={18} /></span></Link>
+    <Link href={cta.href} className="glow-soft group mb-4 flex items-center gap-4 rounded-card bg-primary p-4 text-primary-foreground sm:p-5"><span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-black/10"><Icon name="sparkles" size={20} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide opacity-70">Próximo passo</span><span className="block text-lg font-semibold">{cta.label}</span></span><span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-black/10 transition-transform group-hover:translate-x-1"><Icon name="arrowRight" size={18} /></span></Link>
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <StatTile icon="mapPin" label="Destinos" value={route?.stopCount ?? "—"} hint={route ? `${route.countryCount} ${route.countryCount === 1 ? "país" : "países"}` : undefined} />
       <StatTile icon="compass" tone={healthTones[health]} label="Objetivo" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Por definir"} hint={healthLabels[health]} />
@@ -60,15 +62,11 @@ export function TripDashboard({ dashboard, today, images = {} }: {
 
     <div className="mt-4 grid gap-4 lg:grid-cols-2">
       <section id="checklist" aria-labelledby="checklist-title" className="min-w-0 rounded-card bg-light p-5 text-light-foreground sm:p-6">
-        <div className="flex flex-wrap items-center gap-3"><IconBadge icon="checklist" tone="success" size="sm" /><div className="min-w-0 flex-1"><h2 id="checklist-title" className="text-base font-semibold">Checklist</h2>{planning ? <p className="text-xs text-black/55">{checklistDone} de {checklist.length} concluídas</p> : null}</div><Link href={`/trips/${trip.id}/planning#checklist-title`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-light-foreground px-4 text-sm font-semibold text-light hover:opacity-85">Ver todas<Icon name="arrowRight" size={15} /></Link></div>
+        <div className="flex flex-wrap items-center gap-3"><IconBadge icon="checklist" tone="success" size="sm" /><div className="min-w-0 flex-1"><h2 id="checklist-title" className="text-base font-semibold">Checklist</h2>{planning ? <p className="text-xs text-black/55">{checklistDone} de {checklist.length} concluídas</p> : null}</div><Link href={`/trips/${trip.id}/planning`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-light-foreground px-4 text-sm font-semibold text-light hover:opacity-85">Ver todas<Icon name="arrowRight" size={15} /></Link></div>
         {dashboard.planning.status === "error" ? <p role="alert" className="mt-4 rounded-2xl bg-destructive-muted p-4 text-sm text-destructive">Não foi possível carregar esta secção. Tente novamente.</p> : checklist.length ? <>
           {checklist.length ? <div aria-hidden="true" className="mt-4 h-2 overflow-hidden rounded-full bg-black/10"><div className="h-full rounded-full bg-success" style={{ width: `${(checklistDone / checklist.length) * 100}%` }} /></div> : null}
-          <ul className="mt-4 space-y-2">{checklist.slice(0, 5).map((item) => <li key={item.id}><Link href={`/trips/${trip.id}/planning/checklist/${item.id}/edit`} className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 transition-colors hover:border-black/30">
-            <span aria-hidden="true" className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${item.isCompleted ? "border-transparent bg-light-foreground text-light" : "border-black/25"}`}>{item.isCompleted ? <Icon name="check" size={14} strokeWidth={2.6} /> : null}</span>
-            <span className="min-w-0 flex-1"><span className={`block truncate font-medium ${item.isCompleted ? "text-black/45 line-through" : ""}`}>{item.title}</span><span className="block text-xs text-black/55">{checklistCategoryLabels[item.category]}{item.dueDate ? ` · até ${item.dueDate}` : ""}</span></span>
-            <span className="sr-only">{item.isCompleted ? "Concluída" : "Por fazer"}</span>
-          </Link></li>)}</ul>
-          {checklist.length > 5 ? <p className="mt-3 text-xs text-black/55">+ {checklist.length - 5} tarefas na checklist completa.</p> : null}
+          {pendingTasks.length ? <ul className="mt-4 space-y-2">{pendingTasks.slice(0, 5).map((item) => <ChecklistRow key={item.id} tripId={trip.id} id={item.id} title={item.title} meta={`${checklistCategoryLabels[item.category]}${item.dueDate ? ` · até ${item.dueDate}` : ""}`} done={false} tone="light" />)}</ul> : <p className="mt-4 flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 text-sm text-black/65"><Icon name="check" size={18} />Todas as tarefas estão concluídas.</p>}
+          {pendingTasks.length > 5 ? <p className="mt-3 text-xs text-black/55">+ {pendingTasks.length - 5} tarefas por fazer na checklist completa.</p> : null}
         </> : <div className="mt-4 rounded-2xl border border-black/10 bg-white p-4 text-sm text-black/65"><p>A checklist ainda está vazia.</p><Link href={`/trips/${trip.id}/planning#checklist-title`} className="mt-2 inline-flex font-semibold text-light-foreground underline">Criar checklist</Link></div>}
       </section>
       <Card title="Próximo itinerário" icon="calendar" href={`/trips/${trip.id}/itinerary`} result={dashboard.itinerary}>{dashboard.itinerary.status === "ready" ? upcoming.length ? <ol className="space-y-2">{upcoming.map((item) => {
