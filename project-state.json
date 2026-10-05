@@ -781,6 +781,11 @@
       "date": "2026-10-06",
       "module": "multi (03, 04, 08)",
       "decision": "Owner reported paid-marking error 42703 and failing document uploads, and requested a ticket-details pop-up on route transport cards. Root causes: validate_financial_record() referenced paid_on/adjusted_on for all tables; Storage upload (INSERT ... RETURNING) needed a SELECT policy covering not-yet-linked objects (confirmed via Supabase storage log: AccessDenied, RLS). Migration 202610060015 replaces the trigger function and adds an owner-folder select policy on trip-documents (bucket remains private)."
+    },
+    {
+      "date": "2026-10-06",
+      "module": "global",
+      "decision": "Owner reported migration 202610060015 applied."
     }
   ],
   "git_log": [
@@ -920,7 +925,7 @@
       "git_integration": "connected (push to main deploys)",
       "production_url": "https://triply-plum.vercel.app",
       "deployed_at": "2026-10-05",
-      "deployed_commit": "5ccdb3d",
+      "deployed_commit": "06f96b4",
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL (Production+Preview)",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Production+Preview)",
@@ -1019,11 +1024,9 @@
     }
   },
   "fixes_2026_10_06": {
-    "status": "deployed_production_pending_migration",
+    "status": "deployed_production",
     "migration": "supabase/migrations/202610060015_fix_payments_and_uploads.sql",
-    "pending_owner_actions": [
-      "Apply migration 202610060015 in Supabase"
-    ],
+    "pending_owner_actions": [],
     "validation": {
       "typecheck": "pass",
       "lint": {
@@ -1043,6 +1046,12 @@
         "passed": 86,
         "failed": 0
       }
+    },
+    "migration_202610060015_applied": "owner reported applied 2026-10-06",
+    "deployed": {
+      "commit": "06f96b4",
+      "vercel_production": "Ready",
+      "url": "https://triply-plum.vercel.app"
     }
   }
 }
