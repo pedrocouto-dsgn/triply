@@ -48,7 +48,7 @@ export function RouteCarousel({ tripId, stops, legs, images, originLabel, return
           </dl>
           <div className="grid gap-3 sm:grid-cols-2"><LegFact title="Chegada" leg={arrival} /><LegFact title="Partida" leg={departure} /></div>
           {selected.notes ? <div className="rounded-2xl bg-surface p-4 text-sm"><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notas</p><p className="mt-1 whitespace-pre-wrap">{selected.notes}</p></div> : null}
-          <div className="flex flex-wrap gap-2 border-t border-border pt-5"><Link href={`/trips/${tripId}/destinations/${selected.id}/edit`} className={button.primary}><Icon name="pencil" size={16} />Editar destino</Link><Link href={`/trips/${tripId}/itinerary#day-${selected.arrivalDate}`} className={button.secondary}><Icon name="calendar" size={16} />Itinerário</Link><Link href={`/trips/${tripId}/route`} className={button.ghost}>Rota completa</Link></div>
+          <div className="flex flex-wrap gap-2 border-t border-border pt-5"><Link href={`/trips/${tripId}/destinations/${selected.id}`} className={button.primary}><Icon name="mapPin" size={16} />Ver destino</Link><Link href={`/trips/${tripId}/destinations/${selected.id}/edit`} className={button.secondary}><Icon name="pencil" size={16} />Editar</Link><Link href={`/trips/${tripId}/itinerary#day-${selected.arrivalDate}`} className={button.secondary}><Icon name="calendar" size={16} />Itinerário</Link><Link href={`/trips/${tripId}/route`} className={button.ghost}>Rota completa</Link></div>
         </div>
       </div> : null}
     </dialog>

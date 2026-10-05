@@ -44,7 +44,7 @@ export function ItineraryTimeline({ trip, days, images = {} }: { trip: Trip; day
     const untimedIds = untimed.map((item) => item.id);
     const parts = dateParts(day.date);
     const place = day.stops[0]?.placeName;
-    return <section key={day.date} id={`day-${day.date}`} className="scroll-mt-20 overflow-hidden rounded-card border border-border bg-card">
+    return <section key={day.date} id={`day-${day.date}`} data-day="" data-stops={day.stops.map((stop) => stop.id).join(" ")} className="scroll-mt-20 overflow-hidden rounded-card border border-border bg-card">
       <header className="flex flex-wrap items-center gap-4 border-b border-border p-4 sm:p-5">
         {place ? <DestinationImage seed={place} image={images[day.stops[0].id]} overlay={false} className="hidden size-16 shrink-0 rounded-2xl sm:block" /> : null}
         <span className="flex w-16 shrink-0 flex-col items-center rounded-2xl bg-primary py-2 text-primary-foreground"><span className="text-[11px] font-semibold uppercase">{parts.month}</span><span className="text-2xl font-bold leading-none">{parts.day}</span></span>
@@ -61,7 +61,7 @@ export function ItineraryTimeline({ trip, days, images = {} }: { trip: Trip; day
           <div className="min-w-0 flex-1"><p className="font-semibold">Transporte · {travelModeLabels[leg.mode]}</p><p className="text-muted-foreground">{leg.departureDate === day.date ? `${leg.departureTime ?? "Hora flexível"}${leg.departureTimezone ? ` · ${leg.departureTimezone}` : ""}` : "Chegada neste dia"}</p></div>
           <Link href={`/trips/${trip.id}/transport/${leg.id}/edit`} className="font-semibold text-link underline">Editar transporte</Link>
         </article>)}
-        {day.items.length ? <ol className="relative space-y-3 before:absolute before:bottom-3 before:left-[27px] before:top-3 before:w-px before:bg-border">{day.items.map((item) => <li key={item.id} className="relative flex gap-4">
+        {day.items.length ? <ol className="relative space-y-3 before:absolute before:bottom-3 before:left-[27px] before:top-3 before:w-px before:bg-border">{day.items.map((item) => <li key={item.id} data-stop={item.stopId ?? "none"} className="relative flex gap-4">
           <span className={`z-10 mt-4 flex h-7 w-14 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold tabular-nums ${item.startLocalTime ? "border-primary/40 bg-card text-link" : "border-border bg-card text-muted-foreground"}`}>{item.startLocalTime ?? "Livre"}</span>
           <article className={`min-w-0 flex-1 rounded-2xl border p-4 ${item.status === "needs_review" ? "border-warning/50 bg-warning-muted" : "border-border bg-surface"}`}>
             <div className="flex flex-wrap justify-between gap-3">

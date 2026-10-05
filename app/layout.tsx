@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-PT">
-      <body>{children}</body>
+      {/* Browser extensions add attributes to <body>; that mismatch is not an app bug. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

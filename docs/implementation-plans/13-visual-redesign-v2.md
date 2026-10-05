@@ -55,3 +55,13 @@ Implementation: `features/finance/budget.ts` (pure, unit-tested), `budget-action
 
 Validation (v2.3): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145 (+3 budget); build PASS; E2E 9/9 (dashboard headings updated to Orçamento / Gastos por categoria); harness 86/86. Checked in the owner's session: budget cards and inline edit opening (nothing saved), route map with Amsterdam and Praga pins.
 Pending owner action: apply migration 202610050012 in Supabase.
+
+## v2.4 — navigation, destination page, drag reorder, itinerary filter (2026-10-05)
+- Sidebar shows "Bem-vindo de volta" with the user's name, an "As minhas viagens" list (active trips) and "Terminar sessão". The trips list page lost its header buttons; the banner keeps only "Alterar capa"; "Criar viagem" is primary.
+- Route page: smaller destination titles, a compact image button, cards that open the new destination page `/trips/{id}/destinations/{stopId}` (full-width destination photo banner, arrival/departure, itinerary, expenses, reservations, previous/next), and "Inserir destino depois de …" after the last destination. The overview popup links to the destination page.
+- Map: pin-shaped markers and one zoom level further out.
+- Reorder destinations with a drag handle (pointer events, mouse and touch); arrow keys still move the focused item, with a live announcement.
+- Itinerary: "Todos / destination" pill filter between the days overview and the day list. Filtering is client-side CSS over `data-day`/`data-stop`.
+- `<body suppressHydrationWarning>` silences the browser-extension attribute mismatch (cz-shortcut-listen) seen in development.
+
+Validation (v2.4): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145; build PASS; harness 86/86. E2E: 9/9 on two consecutive runs; one earlier run had a single intermittent `toContainText` timeout during the first dev compile. Checked in the owner's session: sidebar, trips page, route cards, destination page and itinerary filter (Praga shows only 10–14 Nov).

@@ -23,7 +23,8 @@ function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: L
     const projected = points.map((point) => project(point, z));
     const spanX = Math.max(...projected.map((p) => p.x)) - Math.min(...projected.map((p) => p.x));
     const spanY = Math.max(...projected.map((p) => p.y)) - Math.min(...projected.map((p) => p.y));
-    if (spanX <= boxW && spanY <= boxH) { zoom = points.length === 1 ? Math.min(z, 6) : z; break; }
+    // One level further out than the tightest fit, so the surroundings stay visible.
+    if (spanX <= boxW && spanY <= boxH) { zoom = Math.max((points.length === 1 ? Math.min(z, 6) : z) - 1, 2); break; }
   }
   const projected = points.map((point) => project(point, zoom));
   const minX = Math.min(...projected.map((p) => p.x)), maxX = Math.max(...projected.map((p) => p.x));
@@ -46,17 +47,17 @@ function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: L
     <rect width={width} height={height} fill="#0f1215" />
     <g style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6)" }}>{tiles.map((tile) => <image key={`${tile.x}-${tile.y}`} href={tile.href} x={tile.x} y={tile.y} width={TILE} height={TILE} />)}</g>
     {pins.length > 1 ? <polyline points={pins.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="var(--primary)" strokeWidth={2.5 * scale} strokeDasharray={`${8 * scale} ${7 * scale}`} strokeLinecap="round" strokeLinejoin="round" opacity="0.9" /> : null}
-    {pins.map((pin, index) => <g key={index} transform={`translate(${pin.x} ${pin.y})`}>
-      <circle r={22 * scale} fill="var(--primary)" opacity="0.18" />
-      <circle r={13 * scale} fill="var(--primary)" stroke="#111315" strokeWidth={3 * scale} />
-      <text textAnchor="middle" dominantBaseline="central" fontSize={12 * scale} fontWeight="700" fill="#10140a">{points[index].number}</text>
-      <text x={20 * scale} y={1 * scale} dominantBaseline="central" fontSize={14 * scale} fontWeight="600" fill="#f5f7f2" stroke="#111315" strokeWidth={4 * scale} paintOrder="stroke">{points[index].label}</text>
+    {pins.map((pin, index) => <g key={index} transform={`translate(${pin.x} ${pin.y}) scale(${scale * 0.75})`}>
+      <ellipse cy={1} rx={7} ry={2.5} fill="#000" opacity="0.35" />
+      <path d="M0 0C-2-7-14-13-14-25a14 14 0 1 1 28 0C14-13 2-7 0 0z" fill="var(--primary)" stroke="#111315" strokeWidth={2.5} />
+      <circle cy={-25} r={5.5} fill="#111315" />
+      <text x={18} y={-26} dominantBaseline="central" fontSize={15} fontWeight="600" fill="#f5f7f2" stroke="#111315" strokeWidth={4} paintOrder="stroke">{points[index].label}</text>
     </g>)}
   </svg>;
 }
 
 export function RouteMap({ points }: { points: MapPoint[] }) {
-  return <div role="img" aria-label={`Mapa da rota: ${points.map((point) => `${point.number}. ${point.label}`).join(", ")}`} className="absolute inset-0">
+  return <div role="img" aria-label={`Mapa da rota, por ordem: ${points.map((point) => point.label).join(" → ")}`} className="absolute inset-0">
     <MapLayer points={points} layout={desktop} className="absolute inset-0 hidden size-full sm:block" />
     <MapLayer points={points} layout={mobile} className="absolute inset-0 size-full sm:hidden" />
     <p className="absolute bottom-2 right-3 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white/70 backdrop-blur">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">contribuidores do OpenStreetMap</a></p>
