@@ -2,10 +2,10 @@
   "project": "Triply",
   "version": "0.1",
   "mode": "autonomous_with_gates",
-  "last_updated": "2026-09-01T00:45:00+01:00",
+  "last_updated": "2026-10-05T12:00:00+01:00",
   "current_module": "01-auth-onboarding",
   "current_stage": "architecture",
-  "status": "repository_bootstrapped_dependencies_pending",
+  "status": "code_present_lifecycle_reconciliation_pending",
   "spec_gate": "open_all_mvp_specs_approved",
   "modules": {
     "01-auth-onboarding": {
@@ -710,15 +710,33 @@
       "date": "2026-09-07",
       "module": "01-auth-onboarding",
       "decision": "Owner explicitly requested removal of mandatory email verification. Spec v1.1 amendment approved by that request. App gate and resend UI removed; password session validation, onboarding ownership, RLS and password recovery retained. Hosted provider setting still requires owner action because only public project credentials are available."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "global",
+      "decision": "Owner requested project-state reconciliation and authorized deploying Triply to a different Vercel account via the owner's browser session."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "global",
+      "decision": "Owner authorized production deploy to Vercel account pedrocouto-dsgn; deployed to https://triply-plum.vercel.app from pedrocouto-dsgn/triply main."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "global",
+      "decision": "Owner designated pedrocouto-dsgn/triply as the canonical GitHub repository; local origin updated. Owner configured Supabase auth URLs and disabled Confirm email."
     }
   ],
-  "git_log": [],
+  "git_log": [
+    "22df666 Initial Triply application",
+    "719480e Isolate Playwright development server"
+  ],
   "repository_bootstrap": {
-    "status": "structure_complete_dependencies_pending",
-    "package_lock": false,
-    "dependency_installation": false,
+    "status": "dependencies_installed",
+    "package_lock": true,
+    "dependency_installation": true,
     "validated": false,
-    "notes": "Run npm install and bootstrap validation commands on a machine with npm registry access before agent execution."
+    "notes": "package-lock.json and node_modules present; validation results recorded under visual_redesign and email_confirmation_change."
   },
   "visual_redesign": {
     "status": "implemented_and_validated",
@@ -760,7 +778,7 @@
     },
     "limitations": [
       "Authenticated end-to-end flows not exercised with a live account; public catalogue uses synthetic data and real presentation components.",
-      "Workspace has no Git repository; no commit or deployment was performed."
+      "Git repository created and pushed on 2026-09-19 (see git section)."
     ],
     "notes": "Visual work recorded independently; historical module lifecycle/bootstrap status has not been retroactively marked complete."
   },
@@ -772,7 +790,7 @@
       "mailer_autoconfirm": false,
       "http_status": 200
     },
-    "required_external_action": "Disable Confirm email in the Supabase Email provider and save. Verify mailer_autoconfirm true before claiming end-to-end completion.",
+    "required_external_action": "Owner reported completed on 2026-10-05; verify mailer_autoconfirm true during production auth test.",
     "validation": {
       "typecheck": "pass",
       "build": "pass",
@@ -783,5 +801,77 @@
       "preexisting_lint_warnings": 14
     },
     "live_account_login_verified": false
+  },
+  "git": {
+    "repository": "https://github.com/pedrocouto-dsgn/triply.git",
+    "branch": "main",
+    "head": "719480e",
+    "synced_with_origin": true,
+    "working_tree": "clean",
+    "commits": [
+      {
+        "sha": "22df666",
+        "date": "2026-09-19",
+        "summary": "Initial Triply application"
+      },
+      {
+        "sha": "719480e",
+        "date": "2026-09-19",
+        "summary": "Isolate Playwright development server"
+      }
+    ],
+    "previous_repository": "https://github.com/off-the-grid-pt/triply.git"
+  },
+  "codebase_observation": {
+    "observed_at": "2026-10-05",
+    "feature_dirs_with_code": [
+      "auth",
+      "planning",
+      "route",
+      "finance",
+      "itinerary",
+      "documents",
+      "dashboard"
+    ],
+    "feature_dirs_empty": [
+      "reservations"
+    ],
+    "supabase_migrations": 10,
+    "notes": "Application code exists for most MVP modules but no lifecycle stage has been formally recorded/approved. Next safe action: reconcile each module's stages against existing code, tests and specs before resuming autopilot at 01-auth-onboarding."
+  },
+  "deployment": {
+    "vercel_previous_link": {
+      "account": "gpi35625-5793",
+      "team": "off-the-grid",
+      "project": "triply",
+      "projectId": "prj_hWRhflrFo1UvQVGwj8TQmrIET94y",
+      "url": "https://triply-blush-nine.vercel.app",
+      "production_deployed": "unverified"
+    },
+    "supabase_project_ref": "fabgrswzqekxjwwktdvl",
+    "status": "deployed_production_new_account",
+    "pending": [
+      "Verify migrations and private documents bucket in Supabase",
+      "Exercise sign-up/sign-in/recovery on production"
+    ],
+    "vercel_current": {
+      "account": "pedrocouto-dsgn",
+      "team": "pedrocouto-dsgns-projects",
+      "plan": "hobby",
+      "project": "triply",
+      "git_repository": "https://github.com/pedrocouto-dsgn/triply",
+      "production_branch": "main",
+      "git_integration": "connected (push to main deploys)",
+      "production_url": "https://triply-plum.vercel.app",
+      "deployed_at": "2026-10-05",
+      "deployed_commit": "719480e",
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL (Production+Preview)",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Production+Preview)",
+        "NEXT_PUBLIC_SITE_URL=https://triply-plum.vercel.app (Production)"
+      ],
+      "verified": "landing page renders; authenticated flows not yet exercised"
+    },
+    "supabase_auth_configuration": "Owner reported on 2026-10-05: Site URL, redirect URLs and Confirm email disabled configured for https://triply-plum.vercel.app (not independently verified)."
   }
 }
