@@ -12,8 +12,8 @@ const project = (point: Coordinates, zoom: number) => {
 };
 
 type Layout = { width: number; height: number; area: { x0: number; x1: number; y0: number; y1: number } };
-const desktop: Layout = { width: 1600, height: 560, area: { x0: 0.42, x1: 0.94, y0: 0.14, y1: 0.7 } };
-const mobile: Layout = { width: 760, height: 760, area: { x0: 0.12, x1: 0.88, y0: 0.14, y1: 0.55 } };
+const desktop: Layout = { width: 1600, height: 560, area: { x0: 0.46, x1: 0.94, y0: 0.16, y1: 0.66 } };
+const mobile: Layout = { width: 760, height: 760, area: { x0: 0.14, x1: 0.86, y0: 0.16, y1: 0.52 } };
 
 function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: Layout; className: string }) {
   const { width, height, area } = layout;
@@ -23,8 +23,8 @@ function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: L
     const projected = points.map((point) => project(point, z));
     const spanX = Math.max(...projected.map((p) => p.x)) - Math.min(...projected.map((p) => p.x));
     const spanY = Math.max(...projected.map((p) => p.y)) - Math.min(...projected.map((p) => p.y));
-    // One level further out than the tightest fit, so the surroundings stay visible.
-    if (spanX <= boxW && spanY <= boxH) { zoom = Math.max((points.length === 1 ? Math.min(z, 6) : z) - 1, 2); break; }
+    // Tightest zoom that fits the whole route (owner asked for a closer view); a single city stays at street-area level.
+    if (spanX <= boxW && spanY <= boxH) { zoom = points.length === 1 ? Math.min(z, 9) : z; break; }
   }
   const projected = points.map((point) => project(point, zoom));
   const minX = Math.min(...projected.map((p) => p.x)), maxX = Math.max(...projected.map((p) => p.x));

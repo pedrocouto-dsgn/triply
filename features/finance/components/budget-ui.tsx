@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
+import { useActionState, useState, useTransition, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icons";
 import { button } from "@/components/ui/page";
+import { RequestIdInput } from "@/components/ui/request-id";
 import { createCategoryInlineAction, deleteExpenseAction, saveExpenseAction, setExpensePaidAction } from "../budget-actions";
 import { initialInlineState, type InlineState } from "../budget-types";
 
@@ -85,8 +86,11 @@ function ExpenseForm({ tripId, currency, categoryId, stops, expense, onDone }: {
     if (result.status === "success") onDone();
     return result;
   }, initialInlineState);
-  return <form action={formAction} className="mt-3 space-y-2 rounded-2xl border border-border bg-surface p-3">
+  // Submitted manually (not via the form action prop) so React does not clear the fields when an error comes back.
+  const [, startTransition] = useTransition();
+  return <form onSubmit={(event) => { event.preventDefault(); const data = new FormData(event.currentTarget); startTransition(() => formAction(data)); }} className="mt-3 space-y-2 rounded-2xl border border-border bg-surface p-3">
     <input type="hidden" name="categoryId" value={categoryId} />
+    {expense ? null : <RequestIdInput />}
     <label className="block text-xs font-medium text-muted-foreground">Descrição<input name="title" defaultValue={expense?.title} required maxLength={120} autoFocus placeholder="Ex.: Hotel em Amesterdão" className={`${field} mt-1 text-foreground`} /></label>
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
       <label className="block text-xs font-medium text-muted-foreground">Valor ({currency})<input name="amount" inputMode="decimal" defaultValue={expense?.valueInput} required placeholder="0,00" className={`${field} mt-1 text-foreground`} /></label>

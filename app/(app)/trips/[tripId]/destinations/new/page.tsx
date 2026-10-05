@@ -19,6 +19,6 @@ export default async function NewDestination({ params, searchParams }: PageProps
   const departureDate = next?.arrivalDate ?? trip.endDate;
   const where = previous && next ? <>Entre <strong>{previous.placeName}</strong> e <strong>{next.placeName}</strong>. </> : previous ? <>Depois de <strong>{previous.placeName}</strong>. </> : null;
   return <FormShell backHref={`/trips/${tripId}/route`} backLabel="Voltar à rota" eyebrow="Novo destino" icon="mapPin" title="Adicionar destino" description={<>{where}Datas da viagem: {trip.startDate} — {trip.endDate}. O destino fica na posição certa pelas datas.</>}>
-    <StopForm tripId={tripId} initial={{ placeName: "", countryCode: "", countryName: "", arrivalDate, departureDate: departureDate < arrivalDate ? arrivalDate : departureDate, timezone: previous?.timezone ?? "", notes: "", createRequestId: randomUUID() }} />
+    <StopForm tripId={tripId} initial={{ placeName: "", countryCode: "", countryName: "", arrivalDate, departureDate: departureDate < arrivalDate ? arrivalDate : departureDate, timezone: previous?.timezone ?? "", notes: "", createRequestId: randomUUID(), isFinal: "" }} />
   </FormShell>;
 }

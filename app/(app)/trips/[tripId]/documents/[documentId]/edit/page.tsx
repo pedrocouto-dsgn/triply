@@ -9,7 +9,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ t
   const { tripId, documentId } = await params;
   const [document, route, planning] = await Promise.all([getOwnedDocument(tripId, documentId), getOwnedRoute(tripId), getOwnedPlanning(tripId)]);
   if (!document || !route || !planning) notFound();
-  return <FormShell backHref={`/trips/${tripId}/documents`} backLabel="Voltar aos documentos" eyebrow="Documentos privados" icon="file" title="Editar documento" aside={<>
+  return <FormShell backHref={`/trips/${tripId}/documents/${documentId}`} backLabel="Voltar ao documento" eyebrow="Documentos privados" icon="file" title="Editar documento" aside={<>
     <section className="mt-6 rounded-feature border border-border bg-card p-5 sm:p-6">
       <div className="flex items-center gap-3"><IconBadge icon="shield" size="sm" /><h2 className="text-xl font-semibold">Ficheiro privado</h2></div>
       {document.attachmentPath ? <p className="my-3 break-all text-sm">Atual: {document.attachmentName} · <a className="font-semibold text-link underline" href={`/trips/${tripId}/documents/${document.id}/download`}>Abrir / descarregar</a></p> : <p className="my-3 text-sm text-muted-foreground">Ainda não existe ficheiro associado.</p>}

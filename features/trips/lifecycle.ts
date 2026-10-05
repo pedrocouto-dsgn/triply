@@ -1,5 +1,10 @@
 import type { Trip, TripLifecycle } from "./types";
 
+/** Today's date in UTC — never ahead of the database's current_date, so it is safe for "paid on" records. */
+export function todayUtc(now = new Date()): string {
+  return now.toISOString().slice(0, 10);
+}
+
 export function todayInLisbon(now = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Lisbon",

@@ -1,6 +1,6 @@
 # SPEC — Module 06: Daily Itinerary
 
-Version: 1.0  
+Version: 1.1  
 Status: APPROVED
 Module ID: `06-itinerary`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `spec/03-destinations-legs.md`, `spec/04-budget-expenses.md`, `AGENTS.md`, `docs/adr/ADR-003-timezones-and-multidestination.md`  
@@ -1119,3 +1119,8 @@ Core itinerary interactions remain accessible on mobile and keyboard.
 Product Owner approval recorded. The P06 decisions above are authoritative for MVP implementation.
 
 Architecture and downstream agents may now consume this spec, subject to the orchestration gates in `CLAUDE.md` and `AGENTS.md`.
+
+
+## Amendment v1.1 — Optional timezone (owner request, 2026-10-05)
+
+A timed activity no longer requires a timezone. If none is chosen the destination's timezone is used when it exists; otherwise the time is stored as local time without timezone.

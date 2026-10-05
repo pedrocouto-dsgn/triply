@@ -1,6 +1,6 @@
 # SPEC — Module 07: Reservations & Checklists
 
-Version: 1.0  
+Version: 1.1  
 Status: APPROVED
 Module ID: `07-reservations-checklists`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `spec/03-destinations-legs.md`, `spec/04-budget-expenses.md`, `spec/06-itinerary.md`, `AGENTS.md`  
@@ -1294,3 +1294,10 @@ Until then:
 - Architecture may inspect the spec;
 - autonomous implementation must not start;
 - agents must not invent alternative product rules.
+
+
+## Amendment v1.1 — Task priority and deletion; optional timezone (owner request, 2026-10-05)
+
+- Checklist tasks have a **priority**: Alta, Média or Baixa. Default is **Alta**. Lists (planning page and dashboard) are ordered by priority (Alta first), then by manual order. Each task shows its priority.
+- Tasks can be **deleted** from the list (bin icon with inline confirmation) and from the edit page.
+- A reservation time no longer requires a timezone.

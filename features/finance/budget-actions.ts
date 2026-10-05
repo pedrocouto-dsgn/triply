@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { todayInLisbon } from "@/features/trips/lifecycle";
+import { todayUtc } from "@/features/trips/lifecycle";
 import { parseMoneyToMinorUnits } from "@/features/trips/money";
 import { getOwnedTrip, requireTripUser } from "@/features/trips/queries";
 import { getOwnedRoute } from "@/features/route/queries";
@@ -13,6 +13,8 @@ import { getOwnedFinance } from "./queries";
 const uuid = z.string().uuid();
 const ok: InlineState = { status: "success" };
 const fail = (message: string): InlineState => ({ status: "error", message });
+/** Database detail appended to an error, so a failure can be diagnosed (no sensitive data is involved). */
+const detail = (error: { message?: string; code?: string } | null) => error?.message?.includes("future_payment") ? " A data do pagamento não pode ser futura." : error?.code ? ` (código ${error.code})` : "";
 const text = (data: FormData, key: string) => String(data.get(key) ?? "").trim();
 function refresh(tripId: string) { revalidatePath(`/trips/${tripId}`, "layout"); }
 
@@ -67,16 +69,21 @@ export async function saveExpenseAction(tripId: string, costId: string, _state: 
     if (!existing) return fail("Gasto não encontrado.");
     const { error } = await supabase.from("cost_items").update(existing.scopeType === "travel_leg" && !stopId ? { ...payload, scope_type: "travel_leg", stop_id: null, travel_leg_id: existing.travelLegId } : payload).eq("id", costId).eq("trip_id", tripId);
     if (error) return fail("Não foi possível guardar o gasto.");
+    // A ticket expense keeps its travel leg's "valor da passagem" in step.
+    if (existing.scopeType === "travel_leg" && existing.travelLegId && !stopId) await supabase.from("travel_legs").update({ price_minor: value.toString(), price_currency: currency }).eq("id", existing.travelLegId).eq("trip_id", tripId);
   } else {
-    const { data: created, error } = await supabase.from("cost_items").insert({ ...payload, trip_id: tripId, create_request_id: crypto.randomUUID() }).select("id").single();
-    if (error || !created) return fail("Não foi possível criar o gasto.");
-    id = created.id as string;
+    const requestId = uuid.safeParse(text(data, "requestId")).success ? text(data, "requestId") : crypto.randomUUID();
+    const { data: created, error } = await supabase.from("cost_items").insert({ ...payload, trip_id: tripId, create_request_id: requestId }).select("id").single();
+    // Same request submitted again (e.g. after a failed "paid" step): reuse the expense instead of duplicating it.
+    const { data: repeated } = error?.code === "23505" ? await supabase.from("cost_items").select("id").eq("trip_id", tripId).eq("create_request_id", requestId).maybeSingle() : { data: null };
+    if (!repeated && (error || !created)) return fail(`Não foi possível criar o gasto.${detail(error)}`);
+    id = String(repeated?.id ?? created!.id);
   }
   if (data.get("paid") === "on") {
     const paidSoFar = expenseRows(ctx.finance).find((row) => row.id === id)?.paidMinor ?? 0n;
     if (value > paidSoFar) {
-      const { error } = await supabase.from("payments").insert({ trip_id: tripId, cost_item_id: id, amount_original_minor: (value - paidSoFar).toString(), currency, base_amount_minor: (value - paidSoFar).toString(), conversion_rate: "1", paid_on: todayInLisbon(), notes: "Marcado como pago", request_id: crypto.randomUUID() });
-      if (error) return fail("O gasto foi guardado, mas não foi possível marcá-lo como pago.");
+      const { error } = await supabase.from("payments").insert({ trip_id: tripId, cost_item_id: id, amount_original_minor: (value - paidSoFar).toString(), currency, base_amount_minor: (value - paidSoFar).toString(), conversion_rate: "1", paid_on: todayUtc(), notes: "Marcado como pago", request_id: crypto.randomUUID() });
+      if (error) { refresh(tripId); return fail(`O gasto foi guardado, mas não foi possível marcá-lo como pago.${detail(error)}`); }
     }
   }
   refresh(tripId); return ok;
@@ -91,8 +98,8 @@ export async function setExpensePaidAction(tripId: string, costId: string, paid:
   const currency = ctx.trip.baseCurrency;
   if (paid) {
     if (row.valueMinor > row.paidMinor) {
-      const { error } = await supabase.from("payments").insert({ trip_id: tripId, cost_item_id: costId, amount_original_minor: (row.valueMinor - row.paidMinor).toString(), currency, base_amount_minor: (row.valueMinor - row.paidMinor).toString(), conversion_rate: "1", paid_on: todayInLisbon(), notes: "Marcado como pago", request_id: crypto.randomUUID() });
-      if (error) return fail("Não foi possível marcar como pago.");
+      const { error } = await supabase.from("payments").insert({ trip_id: tripId, cost_item_id: costId, amount_original_minor: (row.valueMinor - row.paidMinor).toString(), currency, base_amount_minor: (row.valueMinor - row.paidMinor).toString(), conversion_rate: "1", paid_on: todayUtc(), notes: "Marcado como pago", request_id: crypto.randomUUID() });
+      if (error) return fail(`Não foi possível marcar como pago.${detail(error)}`);
     }
   } else {
     const refunded = new Map<string, bigint>();
@@ -101,7 +108,7 @@ export async function setExpensePaidAction(tripId: string, costId: string, paid:
       const remaining = BigInt(payment.baseAmountMinor) + (refunded.get(payment.id) ?? 0n);
       const original = payment.currency === currency ? remaining : remaining * BigInt(payment.amountOriginalMinor) / (BigInt(payment.baseAmountMinor) || 1n);
       if (remaining <= 0n || original <= 0n) continue;
-      const { error } = await supabase.from("financial_adjustments").insert({ trip_id: tripId, payment_id: payment.id, amount_original_minor: `-${original}`, currency: payment.currency, base_amount_minor: `-${remaining}`, conversion_rate: payment.conversionRate, adjusted_on: todayInLisbon(), notes: "Marcado como por pagar", request_id: crypto.randomUUID() });
+      const { error } = await supabase.from("financial_adjustments").insert({ trip_id: tripId, payment_id: payment.id, amount_original_minor: `-${original}`, currency: payment.currency, base_amount_minor: `-${remaining}`, conversion_rate: payment.conversionRate, adjusted_on: todayUtc(), notes: "Marcado como por pagar", request_id: crypto.randomUUID() });
       if (error) return fail("Não foi possível marcar como por pagar.");
     }
   }

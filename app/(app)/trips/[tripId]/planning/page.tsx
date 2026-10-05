@@ -32,13 +32,13 @@ export default async function PlanningPage({ params }: PageProps<"/trips/[tripId
         </div>
 
         <h3 className="mt-7 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Por fazer</h3>
-        {pending.length ? <ul className="mt-3 space-y-2">{pending.map((item) => <ChecklistRow key={item.id} tripId={tripId} id={item.id} title={item.title} meta={meta(item)} done={false} />)}</ul>
+        {pending.length ? <ul className="mt-3 space-y-2">{pending.map((item) => <ChecklistRow key={item.id} tripId={tripId} id={item.id} priority={item.priority} title={item.title} meta={meta(item)} done={false} />)}</ul>
           : data.checklist.length ? <p className="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-border bg-surface p-4 text-sm text-muted-foreground"><Icon name="check" size={18} />Tudo feito! Não há tarefas por fazer.</p>
           : <EmptyState className="mt-3" icon="checklist" title="A checklist está vazia" description="Use a checklist inicial ou adicione as suas próprias tarefas." />}
 
         {done.length ? <details className="group mt-6 rounded-2xl border border-border bg-surface p-4">
           <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Icon name="archive" size={16} className="text-muted-foreground" />Concluídas ({done.length})</span><Icon name="chevronRight" size={16} className="text-muted-foreground transition-transform group-open:rotate-90" /></summary>
-          <ul className="mt-3 space-y-2">{done.map((item) => <ChecklistRow key={item.id} tripId={tripId} id={item.id} title={item.title} meta={meta(item)} done />)}</ul>
+          <ul className="mt-3 space-y-2">{done.map((item) => <ChecklistRow key={item.id} tripId={tripId} id={item.id} priority={item.priority} title={item.title} meta={meta(item)} done />)}</ul>
           <p className="mt-3 text-xs text-muted-foreground">Toque numa tarefa concluída para a voltar a abrir.</p>
         </details> : null}
       </Panel>

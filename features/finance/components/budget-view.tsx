@@ -39,7 +39,8 @@ export function FinanceBudget({ trip, data, route, calculation }: { trip: Trip; 
   const stopName = new Map(route.stops.map((stop) => [stop.id, stop.placeName]));
   const categories: CategoryView[] = totals.map(({ category, expenses, totalMinor, paidMinor }) => ({
     id: category.id, name: category.name, total: money(totalMinor, trip), paid: money(paidMinor, trip), paidPercent: totalMinor > 0n ? Math.min(Number((paidMinor * 100n) / totalMinor), 100) : 0, color: colorOf.get(category.id) ?? "var(--chart-7)",
-    expenses: expenses.map((row) => ({ id: row.id, title: row.title, value: money(row.valueMinor, trip), valueInput: minorUnitsToInput(row.valueMinor.toString(), trip.baseCurrency), paid: row.paid, stopId: row.stopId, stopName: row.stopId ? stopName.get(row.stopId) ?? null : null })),
+    // Paid expenses go to the end of the list (stable, so the creation order is kept otherwise).
+    expenses: [...expenses].sort((a, b) => Number(a.paid) - Number(b.paid)).map((row) => ({ id: row.id, title: row.title, value: money(row.valueMinor, trip), valueInput: minorUnitsToInput(row.valueMinor.toString(), trip.baseCurrency), paid: row.paid, stopId: row.stopId, stopName: row.stopId ? stopName.get(row.stopId) ?? null : null })),
   }));
   const shownIds = new Set(categories.map((category) => category.id));
   const otherCategories = data.categories.filter((category) => category.archivedAt === null && !shownIds.has(category.id)).map((category) => ({ id: category.id, name: category.name }));

@@ -30,21 +30,21 @@ export const legSchema = z.object({
     if (sideDate && !/^\d{4}-\d{2}-\d{2}$/.test(sideDate)) context.addIssue({ code: "custom", path: [`${side}Date`], message: "Introduza uma data válida." });
     if (sideTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(sideTime)) context.addIssue({ code: "custom", path: [`${side}Time`], message: "Introduza uma hora válida." });
     if (sideTime && !sideDate) context.addIssue({ code: "custom", path: [`${side}Date`], message: "A data é obrigatória quando indica uma hora." });
-    if (sideTime && !isIanaTimezone(timezone)) context.addIssue({ code: "custom", path: [`${side}Timezone`], message: "Indique uma timezone IANA válida quando existe uma hora." });
+    if (timezone && !isIanaTimezone(timezone)) context.addIssue({ code: "custom", path: [`${side}Timezone`], message: "Selecione uma timezone válida ou deixe em branco." });
   }
   if (value.departureDate && value.arrivalDate) {
     if (value.departureTime && value.arrivalTime && isIanaTimezone(value.departureTimezone) && isIanaTimezone(value.arrivalTimezone)) {
       const departure = zonedDateTimeToEpoch(value.departureDate, value.departureTime, value.departureTimezone);
       const arrival = zonedDateTimeToEpoch(value.arrivalDate, value.arrivalTime, value.arrivalTimezone);
       if (departure !== null && arrival !== null && arrival < departure) context.addIssue({ code: "custom", path: ["arrivalTime"], message: "A chegada não pode ocorrer antes da partida." });
-    } else if (value.arrivalDate < value.departureDate) context.addIssue({ code: "custom", path: ["arrivalDate"], message: "A chegada não pode ser anterior à partida." });
+    } else if (value.departureTime && value.arrivalTime && value.arrivalDate === value.departureDate && !value.departureTimezone && !value.arrivalTimezone && value.arrivalTime < value.departureTime) context.addIssue({ code: "custom", path: ["arrivalTime"], message: "A chegada não pode ocorrer antes da partida." });
+    else if (value.arrivalDate < value.departureDate) context.addIssue({ code: "custom", path: ["arrivalDate"], message: "A chegada não pode ser anterior à partida." });
   }
   const currencyValid = SUPPORTED_CURRENCIES.some((currency) => currency === value.priceCurrency);
   if (value.priceAmount && !currencyValid) context.addIssue({ code: "custom", path: ["priceCurrency"], message: "Selecione a moeda do preço." });
-  if (!value.priceAmount && value.priceCurrency) context.addIssue({ code: "custom", path: ["priceAmount"], message: "Introduza o preço ou retire a moeda." });
-  if (value.priceAmount && (value.priceAmount.startsWith("-") || !currencyValid || parseMoneyToMinorUnits(value.priceAmount, value.priceCurrency as (typeof SUPPORTED_CURRENCIES)[number]) === null)) context.addIssue({ code: "custom", path: ["priceAmount"], message: "Introduza um preço não negativo válido." });
+  if (value.priceAmount && (value.priceAmount.startsWith("-") || !currencyValid || parseMoneyToMinorUnits(value.priceAmount, value.priceCurrency as (typeof SUPPORTED_CURRENCIES)[number]) === null)) context.addIssue({ code: "custom", path: ["priceAmount"], message: "Introduza um valor válido, por exemplo 120 ou 120,50." });
 });
 
 export const uuidSchema = z.string().uuid();
-export function stopValues(data: FormData): StopFormValues { return { placeName: String(data.get("placeName") ?? ""), countryCode: String(data.get("countryCode") ?? ""), countryName: String(data.get("countryName") ?? ""), arrivalDate: String(data.get("arrivalDate") ?? ""), departureDate: String(data.get("departureDate") ?? ""), timezone: String(data.get("timezone") ?? ""), notes: String(data.get("notes") ?? ""), createRequestId: String(data.get("createRequestId") ?? "") }; }
+export function stopValues(data: FormData): StopFormValues { return { placeName: String(data.get("placeName") ?? ""), countryCode: String(data.get("countryCode") ?? ""), countryName: String(data.get("countryName") ?? ""), arrivalDate: String(data.get("arrivalDate") ?? ""), departureDate: String(data.get("departureDate") ?? ""), timezone: String(data.get("timezone") ?? ""), notes: String(data.get("notes") ?? ""), createRequestId: String(data.get("createRequestId") ?? ""), isFinal: data.get("isFinal") === "on" ? "on" : "" }; }
 export function legValues(data: FormData): LegFormValues { return { fromToken: String(data.get("fromToken") ?? ""), toToken: String(data.get("toToken") ?? ""), mode: String(data.get("mode") ?? ""), status: String(data.get("status") ?? ""), departureDate: String(data.get("departureDate") ?? ""), departureTime: String(data.get("departureTime") ?? ""), departureTimezone: String(data.get("departureTimezone") ?? ""), arrivalDate: String(data.get("arrivalDate") ?? ""), arrivalTime: String(data.get("arrivalTime") ?? ""), arrivalTimezone: String(data.get("arrivalTimezone") ?? ""), operator: String(data.get("operator") ?? ""), reference: String(data.get("reference") ?? ""), priceAmount: String(data.get("priceAmount") ?? ""), priceCurrency: String(data.get("priceCurrency") ?? ""), notes: String(data.get("notes") ?? ""), createRequestId: String(data.get("createRequestId") ?? "") }; }

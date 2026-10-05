@@ -5,5 +5,6 @@ const messages: Record<string, string> = {
 };
 export function RouteStatus({ query }: { query: Record<string, string | string[] | undefined> }) {
   const key = Object.keys(messages).find((item) => query[item]);
-  return key ? <p role="status" className="mt-6 rounded-control border border-success bg-success-muted p-4 text-sm font-medium text-success">{messages[key]}</p> : null;
+  const warning = query.budgetSync === "0" ? <p role="alert" className="mt-3 rounded-control border border-warning bg-warning-muted p-4 text-sm font-medium text-warning">O transporte foi guardado, mas não foi possível atualizar o valor da passagem nos gastos. Edite o transporte e guarde novamente.</p> : null;
+  return key ? <><p role="status" className="mt-6 rounded-control border border-success bg-success-muted p-4 text-sm font-medium text-success">{messages[key]}</p>{warning}</> : warning;
 }

@@ -24,6 +24,8 @@ export type TravelLeg = {
 export type StopFormValues = {
   placeName: string; countryCode: string; countryName: string; arrivalDate: string;
   departureDate: string; timezone: string; notes: string; createRequestId: string;
+  /** "on" when this is the final destination: the stay lasts until the end of the trip, no departure asked. */
+  isFinal: string;
 };
 
 export type LegFormValues = {

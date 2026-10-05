@@ -1,6 +1,6 @@
 # SPEC — Module 08: Documents
 
-Version: 1.0  
+Version: 1.1  
 Status: APPROVED
 Module ID: `08-documents`  
 Depends on: `spec/00-product.md`, `spec/01-auth-onboarding.md`, `spec/02-trips.md`, `spec/03-destinations-legs.md`, `spec/07-reservations-checklists.md`, `docs/adr/ADR-004-private-documents.md`, `AGENTS.md`  
@@ -949,3 +949,10 @@ A dedicated Security Agent milestone is mandatory after QA for this module.
 This spec may move from `REVIEW` to `APPROVED` only after the product owner approves or modifies P08-01 through P08-14.
 
 No Architecture, Database, Backend, Frontend or autonomous implementation agent may invent conflicting document/security behavior while this spec remains in `REVIEW`.
+
+
+## Amendment v1.1 — Document view page and direct upload (owner request, 2026-10-05)
+
+- Each document has a **"Ver documento"** page showing all its information, an inline private preview of the attachment (image or PDF, via a 5-minute signed URL created after ownership checks) and a **Descarregar** button.
+- The attachment can be chosen in the create form. Files are uploaded from the browser directly to the private `trip-documents` bucket under `{user}/{trip}/{document}/{random}.{ext}` (storage RLS unchanged), avoiding the 4.5 MB server-function request limit. The server then verifies the path prefix, downloads the object and checks real content type (magic bytes) and size (≤ 10 MB) before keeping it; invalid objects are deleted and the previous attachment restored.
+- Validation errors keep the typed values; a retried create never duplicates the document.

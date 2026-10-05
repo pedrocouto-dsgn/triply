@@ -1,6 +1,6 @@
 # SPEC — Module 04: Budget & Expenses
 
-Version: 1.1  
+Version: 1.2  
 Status: APPROVED
 Module ID: `04-budget-expenses`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `spec/03-destinations-legs.md`, `AGENTS.md`, `docs/adr/ADR-002-money-and-currency.md`  
@@ -1399,3 +1399,10 @@ The next Product specification is:
 - **Gastos por categoria**: one card per category with its total and paid amount. Alojamento, Transportes and Atividades always appear. A card lists its expenses and supports inline add, edit (description, value, destination), mark paid / unpaid, and remove. Users can create a category or show any existing one.
 - Simplified expense model on the existing schema. An expense is a cost item with one value, stored as committed in the base currency. "Mark paid" records a payment for the unpaid remainder. "Mark unpaid" and "remove" record refunds (negative adjustments), and removing also archives the item. No financial history is deleted.
 - Kept: forecast per destination (bar list, with an add-destination action), forecast per category (donut) and a collapsed payment history. Removed from the UI: the estimated / forecast / committed / paid / actual metric grid and the separate cost, payment, actual and refund forms in the main flow. Their routes still exist for legacy data.
+
+
+## Amendment v1.2 — Paid expenses and ticket expenses (owner request, 2026-10-05)
+
+- Paid expenses are listed after unpaid ones inside each category.
+- Creating an expense already marked "Já está pago" is idempotent (a retry never duplicates it) and payment dates use the UTC calendar date so they are never ahead of the database date.
+- Travel-leg ticket prices appear automatically as expenses (see Module 03 amendment v1.2).

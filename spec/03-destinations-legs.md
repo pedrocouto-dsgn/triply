@@ -1,6 +1,6 @@
 # SPEC — Module 03: Destinations & Travel Legs
 
-Version: 1.1  
+Version: 1.2  
 Status: APPROVED (v1.1 amendment approved by owner request, 2026-10-05)
 Module ID: `03-destinations-legs`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `AGENTS.md`, `docs/adr/ADR-003-time-and-route-model.md`  
@@ -950,3 +950,11 @@ No implementation agent may infer alternative route semantics without an approve
 - **Insert between destinations (owner request, 2026-10-05):** the "+" between route cards and a final "+" card open a new destination pre-filled with the gap's dates. The destination is inserted at the chronological position (`create_route_stop_at`, migration `202610050012_insert_route_stop.sql`). Legs that stop being adjacent are flagged for review, as with reordering.
 - **Route map:** the "Rota e destinos" banner shows a map with one numbered pin per destination and a dashed route line. Coordinates come from OpenStreetMap Nominatim (keyless, cached 30 days, only place and country names are sent). Tiles are OpenStreetMap standard tiles, darkened with CSS and attributed.
 - **Trip cover:** the cover is the first destination's image. "Alterar capa" (overview banner, trips list and trip cards) opens that image upload.
+
+
+## Amendment v1.2 — Ticket price, final destination, optional timezones (owner request, 2026-10-05)
+
+- A travel leg's price is presented as **"Valor da passagem"** in the trip base currency. When set (and the leg is not cancelled) it is mirrored as one budget expense in category *Transportes*, scoped to the leg; editing the price updates that expense, removing the price or cancelling the leg archives it, and status *Pago* marks it fully paid. Editing the expense value in the budget updates the leg price. Deleting a leg (or a destination with legs) removes unpaid mirrored expenses and keeps paid ones as whole-trip expenses.
+- Destination form has a **"Destino final"** checkbox. When checked no departure date is asked; the stay lasts until the trip end date, and the destination must be the last one in the route.
+- **Timezones are optional everywhere.** A leg time requires only its date; when either timezone is missing, arrival-before-departure is checked on local date/time.
+- Route banner map uses the tightest zoom that fits the route (closer view).
