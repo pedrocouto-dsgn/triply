@@ -771,6 +771,11 @@
       "date": "2026-10-05",
       "module": "multi (03, 04, 06, 07, 08)",
       "decision": "Owner requested platform corrections: ticket price on travel legs mirrored into the budget, fix for marking a new expense as paid and paid expenses listed last, optional timezones everywhere, 'Destino final' checkbox without departure, closer route map zoom, fix for document creation/upload plus a 'Ver documento' page with preview and download, task deletion, and task priority (Alta/Média/Baixa, default Alta, sorted by priority). Specs 03 v1.2, 04 v1.2, 06 v1.1, 07 v1.1, 08 v1.1 amended by that request. Additive migration 202610050014 (relaxed timezone checks, checklist priority, one-time backfill of existing ticket prices into the budget). No new dependency or external service."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "global",
+      "decision": "Owner granted standing authorization: after every change, commit and deploy to Vercel production automatically (push to pedrocouto-dsgn/triply main, which triggers the Vercel Git integration). Owner reported migration 202610050014 applied."
     }
   ],
   "git_log": [
@@ -967,13 +972,11 @@
     }
   },
   "owner_corrections_2026_10_05": {
-    "status": "implemented_and_validated_locally",
+    "status": "deploying_production",
     "branch": "feat/owner-corrections",
     "migration": "supabase/migrations/202610050014_owner_corrections.sql",
     "pending_owner_actions": [
-      "Apply supabase/migrations/202610050014_owner_corrections.sql in Supabase (needed for task priority and for saving times without timezone)",
-      "Confirm the private bucket trip-documents exists (migration 202609010010)",
-      "Authorize push/deploy"
+      "Confirm the private bucket trip-documents exists (migration 202609010010)"
     ],
     "validation": {
       "typecheck": "pass",
@@ -998,6 +1001,7 @@
     "limitations": [
       "Authenticated flows not exercised against the live Supabase project (no test account); the expense 'paid' error was not reproduced live — fixed from code analysis (UTC payment date, idempotent create, detailed error codes)",
       "Document upload now goes browser → Storage directly; depends on the storage insert policy from migration 202609010010"
-    ]
+    ],
+    "migration_202610050014_applied": "owner reported applied 2026-10-05"
   }
 }
