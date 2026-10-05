@@ -905,7 +905,7 @@
       "git_integration": "connected (push to main deploys)",
       "production_url": "https://triply-plum.vercel.app",
       "deployed_at": "2026-10-05",
-      "deployed_commit": "719480e",
+      "deployed_commit": "02db1ed",
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL (Production+Preview)",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Production+Preview)",
@@ -916,7 +916,7 @@
     "supabase_auth_configuration": "Owner reported on 2026-10-05: Site URL, redirect URLs and Confirm email disabled configured for https://triply-plum.vercel.app (not independently verified)."
   },
   "visual_redesign_v2": {
-    "status": "implemented_and_validated_pending_owner_review",
+    "status": "deployed_production",
     "branch": "feat/visual-redesign-v2",
     "design_system": "spec/00-design-system.md (v2.0)",
     "implementation_plan": "docs/implementation-plans/13-visual-redesign-v2.md",
@@ -945,13 +945,20 @@
     },
     "limitations": [
       "Authenticated pages not exercised with a live account",
-      "Images are illustrated placeholders; real photos not yet supported",
-      "Not merged, pushed or deployed"
+      "Images are illustrated placeholders; real photos not yet supported"
     ],
     "pending_owner_actions": [
       "Apply supabase/migrations/202610050013_trips_banner.sql in Supabase (needed to upload the 'Todas as viagens' banner)",
       "Optional: UNSPLASH_ACCESS_KEY"
     ],
-    "migration_202610050011_applied": "owner reported applied 2026-10-05"
+    "migration_202610050011_applied": "owner reported applied 2026-10-05",
+    "deployed": {
+      "date": "2026-10-05",
+      "commit": "02db1ed",
+      "branch_pushed": "origin/feat/visual-redesign-v2",
+      "main_fast_forwarded": true,
+      "vercel_production": "Ready",
+      "url": "https://triply-plum.vercel.app"
+    }
   }
 }
