@@ -1,18 +1,17 @@
 import Link from "next/link";
 import { Icon, travelModeIcons } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
-import { Badge, button, EmptyState, SectionHeader } from "@/components/ui/page";
+import { button, EmptyState, SectionHeader } from "@/components/ui/page";
 import type { PlaceImage } from "@/features/media/types";
 import type { Trip } from "@/features/trips/types";
 import { formatTripDateRange } from "@/features/trips/date";
-import { formatMinorUnits } from "@/features/trips/money";
 import { buildAdjacencies, buildRoutePoints, isLegForPoints } from "../route-model";
 import type { RouteData } from "../types";
 import { DeleteStop } from "./destructive";
+import { LegCard } from "./leg-card";
 import { ReorderStops } from "./reorder";
 
 const modes = { plane: "Avião", train: "Comboio", bus: "Autocarro", car: "Carro", ferry: "Ferry", other: "Outro" };
-const statuses = { planned: "Planeado", booked: "Reservado", paid: "Pago", cancelled: "Cancelado", completed: "Concluído" };
 
 export function RouteOverview({ trip, route, images = {} }: { trip: Trip; route: RouteData; images?: Record<string, PlaceImage> }) {
   const lastStopId = [...route.stops].sort((a, b) => b.position - a.position)[0]?.id;
@@ -49,7 +48,7 @@ function LegBlock({ tripId, adjacency, allLegs }: { tripId: string; adjacency: R
     <span aria-hidden="true" className={`absolute -left-[17px] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border ${leg ? "border-primary/50 bg-primary-muted text-link" : "border-warning/50 bg-warning-muted text-warning"}`}><Icon name={leg ? travelModeIcons[leg.mode] : "plus"} size={15} /></span>
     <div className={`rounded-2xl border p-4 text-sm ${leg ? "border-border bg-surface" : "border-warning/40 bg-warning-muted"}`}>
       <p className="text-xs font-medium text-muted-foreground">{adjacency.from.label} → {adjacency.to.label}</p>
-      {leg ? <div className="mt-2 flex flex-wrap items-center justify-between gap-3"><div className="min-w-0"><p className="flex flex-wrap items-center gap-2"><strong>{modes[leg.mode]}</strong><Badge tone={leg.status === "booked" || leg.status === "paid" || leg.status === "completed" ? "success" : "neutral"}>{statuses[leg.status]}</Badge></p>{leg.operator ? <p className="mt-1 text-muted-foreground">{leg.operator}</p> : null}{leg.priceMinor && leg.priceCurrency ? <p className="mt-1 font-medium tabular-nums">{formatMinorUnits(leg.priceMinor, leg.priceCurrency)}</p> : null}</div><Link className="font-medium text-link underline" href={`/trips/${tripId}/transport/${leg.id}/edit`}>Editar</Link></div>
+      {leg ? <LegCard tripId={tripId} leg={leg} fromLabel={adjacency.from.label} toLabel={adjacency.to.label} />
         : <div className="mt-2"><p className="font-medium text-warning">Transporte por planear</p><Link href={`/trips/${tripId}/transport/new?from=${encodeURIComponent(adjacency.from.token)}&to=${encodeURIComponent(adjacency.to.token)}`} className="mt-2 inline-flex items-center gap-1 font-medium text-warning underline"><Icon name="plus" size={14} />Adicionar transporte</Link></div>}
       {historical.length ? <p className="mt-2 text-xs text-muted-foreground">{historical.length} transporte(s) cancelado(s) preservado(s)</p> : null}
     </div>

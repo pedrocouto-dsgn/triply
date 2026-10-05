@@ -25,7 +25,7 @@ async function uploadAttachment(tripId: string, documentId: string, file: File):
   if (!auth.user) return "A sessão expirou. Entre novamente para enviar o ficheiro.";
   const path = `${auth.user.id}/${tripId}/${documentId}/${crypto.randomUUID()}.${extensionFor(mime)}`;
   const { error } = await supabase.storage.from("trip-documents").upload(path, file, { contentType: mime, upsert: false });
-  if (error) return /bucket not found/i.test(error.message) ? "O armazenamento de documentos não está configurado no Supabase (bucket trip-documents em falta)." : "O envio do ficheiro falhou. Tente novamente.";
+  if (error) return /bucket not found/i.test(error.message) ? "O armazenamento de documentos não está configurado no Supabase (bucket trip-documents em falta)." : /row-level security/i.test(error.message) ? "O envio foi recusado pelo Supabase. Aplique a migração 202610060015_fix_payments_and_uploads.sql." : "O envio do ficheiro falhou. Tente novamente.";
   const result = await attachUploadedFileAction(tripId, documentId, path, file.name);
   return result.status === "error" ? result.message ?? "Não foi possível associar o ficheiro." : null;
 }

@@ -2,7 +2,7 @@
   "project": "Triply",
   "version": "0.1",
   "mode": "autonomous_with_gates",
-  "last_updated": "2026-10-05T22:40:00+01:00",
+  "last_updated": "2026-10-06T00:45:00+01:00",
   "current_module": "01-auth-onboarding",
   "current_stage": "architecture",
   "status": "code_present_lifecycle_reconciliation_pending",
@@ -776,6 +776,11 @@
       "date": "2026-10-05",
       "module": "global",
       "decision": "Owner granted standing authorization: after every change, commit and deploy to Vercel production automatically (push to pedrocouto-dsgn/triply main, which triggers the Vercel Git integration). Owner reported migration 202610050014 applied."
+    },
+    {
+      "date": "2026-10-06",
+      "module": "multi (03, 04, 08)",
+      "decision": "Owner reported paid-marking error 42703 and failing document uploads, and requested a ticket-details pop-up on route transport cards. Root causes: validate_financial_record() referenced paid_on/adjusted_on for all tables; Storage upload (INSERT ... RETURNING) needed a SELECT policy covering not-yet-linked objects (confirmed via Supabase storage log: AccessDenied, RLS). Migration 202610060015 replaces the trigger function and adds an owner-folder select policy on trip-documents (bucket remains private)."
     }
   ],
   "git_log": [
@@ -1011,6 +1016,33 @@
       "vercel_production": "Ready (GitHub status: Deployment has completed)",
       "url": "https://triply-plum.vercel.app",
       "smoke": "landing 200; protected routes incl. new /documents/[id] redirect to sign-in when signed out"
+    }
+  },
+  "fixes_2026_10_06": {
+    "status": "deployed_production_pending_migration",
+    "migration": "supabase/migrations/202610060015_fix_payments_and_uploads.sql",
+    "pending_owner_actions": [
+      "Apply migration 202610060015 in Supabase"
+    ],
+    "validation": {
+      "typecheck": "pass",
+      "lint": {
+        "errors": 0,
+        "warnings": 13
+      },
+      "unit_tests": {
+        "passed": 149,
+        "failed": 0
+      },
+      "build": "pass",
+      "e2e_tests": {
+        "passed": 9,
+        "failed": 0
+      },
+      "harness_tests": {
+        "passed": 86,
+        "failed": 0
+      }
     }
   }
 }

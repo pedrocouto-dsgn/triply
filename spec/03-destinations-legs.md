@@ -958,3 +958,4 @@ No implementation agent may infer alternative route semantics without an approve
 - Destination form has a **"Destino final"** checkbox. When checked no departure date is asked; the stay lasts until the trip end date, and the destination must be the last one in the route.
 - **Timezones are optional everywhere.** A leg time requires only its date; when either timezone is missing, arrival-before-departure is checked on local date/time.
 - Route banner map uses the tightest zoom that fits the route (closer view).
+- Route page: clicking a transport card opens a pop-up with the ticket details (route, departure/arrival date, time and optional timezone, ticket price, operator, reference, notes) with shortcuts to edit it and to the budget. (2026-10-06)

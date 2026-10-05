@@ -14,7 +14,7 @@ const uuid = z.string().uuid();
 const ok: InlineState = { status: "success" };
 const fail = (message: string): InlineState => ({ status: "error", message });
 /** Database detail appended to an error, so a failure can be diagnosed (no sensitive data is involved). */
-const detail = (error: { message?: string; code?: string } | null) => error?.message?.includes("future_payment") ? " A data do pagamento não pode ser futura." : error?.code ? ` (código ${error.code})` : "";
+const detail = (error: { message?: string; code?: string } | null) => error?.message?.includes("future_payment") ? " A data do pagamento não pode ser futura." : error?.code === "42703" ? " Aplique a migração 202610060015_fix_payments_and_uploads.sql no Supabase." : error?.code ? ` (código ${error.code})` : "";
 const text = (data: FormData, key: string) => String(data.get(key) ?? "").trim();
 function refresh(tripId: string) { revalidatePath(`/trips/${tripId}`, "layout"); }
 
@@ -109,7 +109,7 @@ export async function setExpensePaidAction(tripId: string, costId: string, paid:
       const original = payment.currency === currency ? remaining : remaining * BigInt(payment.amountOriginalMinor) / (BigInt(payment.baseAmountMinor) || 1n);
       if (remaining <= 0n || original <= 0n) continue;
       const { error } = await supabase.from("financial_adjustments").insert({ trip_id: tripId, payment_id: payment.id, amount_original_minor: `-${original}`, currency: payment.currency, base_amount_minor: `-${remaining}`, conversion_rate: payment.conversionRate, adjusted_on: todayUtc(), notes: "Marcado como por pagar", request_id: crypto.randomUUID() });
-      if (error) return fail("Não foi possível marcar como por pagar.");
+      if (error) return fail(`Não foi possível marcar como por pagar.${detail(error)}`);
     }
   }
   refresh(tripId); return ok;
