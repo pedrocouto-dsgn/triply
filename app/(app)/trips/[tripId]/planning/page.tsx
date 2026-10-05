@@ -2,12 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarList, ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon } from "@/components/ui/icons";
-import { BackLink, Badge, button, EmptyState, IconBadge, PageContainer, PageHero, Panel, SectionHeader } from "@/components/ui/page";
+import { Badge, button, EmptyState, IconBadge, PageContainer, Panel, SectionHeader } from "@/components/ui/page";
 import { ToggleTask, Starter } from "@/features/planning/components/check-actions";
 import { deriveDueState, safeBookingUrl } from "@/features/planning/helpers";
 import { checklistCategoryLabels, dueStateLabels, reservationStatusLabels, reservationTypeIcons, reservationTypeLabels } from "@/features/planning/labels";
 import { getOwnedPlanning } from "@/features/planning/queries";
 import { todayInLisbon } from "@/features/trips/lifecycle";
+import { TripHero } from "@/features/trips/components/trip-hero";
 import { getOwnedTrip } from "@/features/trips/queries";
 
 export default async function PlanningPage({ params }: PageProps<"/trips/[tripId]/planning">) {
@@ -21,9 +22,7 @@ export default async function PlanningPage({ params }: PageProps<"/trips/[tripId
     const items = data.checklist.filter((item) => item.category === category), complete = items.filter((item) => item.isCompleted).length;
     return { label: checklistCategoryLabels[category], value: complete, display: `${complete}/${items.length}`, total: items.length };
   });
-  return <PageContainer>
-    <div className="mb-4"><BackLink href={`/trips/${tripId}`}>Voltar à viagem</BackLink></div>
-    <PageHero seed={`${trip.name} preparar`} size="sm" eyebrow={<><Icon name="checklist" size={14} />Reservas e checklist</>} title={`Preparar ${trip.name}`} />
+  return <PageContainer hero={<TripHero trip={trip} active="planning" title="Planeamento" description="Reservas e checklist para preparar a viagem." />}>
     <div className="mt-4 grid gap-4 md:grid-cols-2">
       <Panel aria-labelledby="reservation-chart-title"><SectionHeader id="reservation-chart-title" as="h3" title="Reservas por estado" description={`${reservations.length} ativa(s)`} /><div className="mt-5 flex flex-wrap items-center gap-6"><DonutChart size={132} thickness={15} label={`Reservas por estado: ${statusSegments.map((item) => `${item.label} ${item.display}`).join(", ")}`} segments={statusSegments} center={<><span className="text-2xl font-semibold">{reservations.length}</span><span className="text-xs text-muted-foreground">reservas</span></>} /><ChartLegend segments={statusSegments} className="min-w-36 flex-1" /></div></Panel>
       <Panel aria-labelledby="checklist-chart-title"><SectionHeader id="checklist-chart-title" as="h3" title="Progresso da checklist" description={`${done} de ${data.checklist.length} concluídas`} /><div className="mt-5 flex flex-wrap items-center gap-6"><RingProgress size={132} thickness={14} color="var(--chart-3)" percent={data.checklist.length ? (done / data.checklist.length) * 100 : 0} label="Progresso da checklist" />{categories.length ? <BarList className="min-w-40 flex-1" items={categories.slice(0, 4)} max={Math.max(...categories.map((item) => item.total))} /> : <p className="flex-1 text-sm text-muted-foreground">Ainda não há tarefas.</p>}</div></Panel>

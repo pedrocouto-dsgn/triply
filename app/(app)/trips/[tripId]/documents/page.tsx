@@ -2,13 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BarList, ChartLegend, DonutChart } from "@/components/ui/charts";
 import { Icon, type IconName } from "@/components/ui/icons";
-import { BackLink, Badge, button, EmptyState, IconBadge, PageContainer, PageHero, Panel, SectionHeader, type Tone } from "@/components/ui/page";
+import { Badge, button, EmptyState, IconBadge, PageContainer, Panel, SectionHeader, type Tone } from "@/components/ui/page";
 import { deriveDocumentValidity, expiresDuringTrip, type DocumentValidity } from "@/features/documents/helpers";
 import { documentTypeLabels } from "@/features/documents/labels";
 import { listOwnedDocuments } from "@/features/documents/queries";
 import type { DocumentType } from "@/features/documents/types";
 import { getOwnedRoute } from "@/features/route/queries";
 import { todayInLisbon } from "@/features/trips/lifecycle";
+import { TripHero } from "@/features/trips/components/trip-hero";
 import { getOwnedTrip } from "@/features/trips/queries";
 
 const validityLabels: Record<DocumentValidity, string> = { expired: "Expirado", expiring_soon: "Expira em breve", valid: "Válido", no_expiry: "Sem validade indicada" };
@@ -26,9 +27,7 @@ export default async function DocumentsPage({ params, searchParams }: { params: 
   const holders = [...new Set(documents.map((d) => d.holderLabel).filter((x): x is string => Boolean(x)))].sort();
   const validitySegments = (Object.keys(validityLabels) as DocumentValidity[]).map((key) => { const count = documents.filter((d) => deriveDocumentValidity(d.expiryDate, today) === key).length; return { label: validityLabels[key], value: count, display: String(count), color: validityColors[key] }; });
   const typeCounts = [...new Set(documents.map((d) => d.type))].map((key) => { const count = documents.filter((d) => d.type === key).length; return { label: documentTypeLabels[key], value: count, display: String(count) }; }).sort((a, b) => b.value - a.value);
-  return <PageContainer>
-    <div className="mb-4"><BackLink href={`/trips/${tripId}`}>Voltar à viagem</BackLink></div>
-    <PageHero seed={`${trip.name} documentos`} size="sm" eyebrow={<><Icon name="shield" size={14} />Documentos privados</>} title={`Documentos de ${trip.name}`} description="Organize metadados e ficheiros privados sem guardar identificadores sensíveis desnecessários." actions={<Link href={`/trips/${tripId}/documents/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar documento</Link>} />
+  return <PageContainer hero={<TripHero trip={trip} active="documents" title="Documentos" description="Organize metadados e ficheiros privados sem guardar identificadores sensíveis desnecessários." actions={<Link href={`/trips/${tripId}/documents/new`} className={button.primary}><Icon name="plus" size={16} />Adicionar documento</Link>} />}>
 
     {documents.length ? <div className="mt-4 grid gap-4 md:grid-cols-2">
       <Panel aria-labelledby="validity-title"><SectionHeader id="validity-title" as="h2" title="Validade" description={`${documents.length} registo(s) · ${documents.filter((d) => d.attachmentPath).length} com ficheiro`} /><div className="mt-5 flex flex-wrap items-center gap-6"><DonutChart size={132} thickness={15} label={`Documentos por validade: ${validitySegments.map((item) => `${item.label} ${item.display}`).join(", ")}`} segments={validitySegments} center={<><span className="text-2xl font-semibold">{documents.length}</span><span className="text-xs text-muted-foreground">registos</span></>} /><ChartLegend segments={validitySegments} className="min-w-40 flex-1" /></div></Panel>

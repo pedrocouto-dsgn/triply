@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
+import type { PlaceImage } from "@/features/media/types";
 import { calendarDaysBetween } from "@/features/savings/calculations";
 import { formatTripDateRange } from "../date";
 import { deriveTripLifecycle, lifecycleLabels } from "../lifecycle";
@@ -15,15 +16,15 @@ export function countdownText(trip: Trip, today: string): string {
   return today <= trip.endDate ? "A decorrer" : "Concluída";
 }
 
-export function TripCard({ trip, today }: { trip: Trip; today: string }) {
+export function TripCard({ trip, today, image }: { trip: Trip; today: string; image?: PlaceImage | null }) {
   const lifecycle = deriveTripLifecycle(trip, today);
   const budget = formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency);
   const nights = calendarDaysBetween(trip.startDate, trip.endDate);
   return <article className="group flex h-full flex-col overflow-hidden rounded-card border border-border bg-card transition-colors hover:border-primary/50">
-    <DestinationImage seed={trip.name} className="h-44">
+    <DestinationImage seed={trip.name} image={image} className="h-48">
       <div className="flex h-full flex-col justify-between p-4 text-white">
         <div className="flex items-start justify-between gap-2"><span className="rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold backdrop-blur">{lifecycleLabels[lifecycle]}</span>{lifecycle === "upcoming" || lifecycle === "ongoing" ? <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">{countdownText(trip, today)}</span> : null}</div>
-        <h3 className="break-words text-xl font-semibold tracking-tight drop-shadow"><Link className="hover:text-white/85" href={`/trips/${trip.id}`}>{trip.name}</Link></h3>
+        <h3 className="break-words text-2xl font-light tracking-tight drop-shadow"><Link className="hover:text-white/85" href={`/trips/${trip.id}`}>{trip.name}</Link></h3>
       </div>
     </DestinationImage>
     <div className="flex flex-1 flex-col p-5">

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BarList, ChartLegend, ColumnChart, DonutChart, RingProgress, StackedBar } from "@/components/ui/charts";
 import { Icon } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
-import { Badge, button, EmptyState, Notice, Panel, StatTile } from "@/components/ui/page";
+import { Badge, button, EmptyState, HeroChip, Notice, PageHero, Panel, StatTile } from "@/components/ui/page";
 import { TripDashboard } from "@/features/dashboard/components/trip-dashboard";
 import type { DashboardData } from "@/features/dashboard/types";
 import type { Stop } from "@/features/route/types";
@@ -29,9 +29,9 @@ const exampleStop = (position: number, placeName: string, arrivalDate: string, d
 const exampleStops = [exampleStop(1, "Tóquio", "2027-04-03", "2027-04-08"), exampleStop(2, "Quioto", "2027-04-08", "2027-04-13"), exampleStop(3, "Osaka", "2027-04-13", "2027-04-17")];
 
 const palette = [
-  ["Canvas", "#0f0f10", "bg-background"], ["Cartão", "#18181b", "bg-card"],
-  ["Superfície", "#141416", "bg-surface"], ["Elevado", "#1f1f23", "bg-elevated"],
-  ["Primária", "#ff6b2c", "bg-primary"], ["Texto", "#fafafa", "bg-foreground"],
+  ["Canvas", "#111315", "bg-background"], ["Cartão", "#1c2024", "bg-card"],
+  ["Superfície", "#16191c", "bg-surface"], ["Elevado", "#252a2f", "bg-elevated"],
+  ["Primária", "#c6f432", "bg-primary"], ["Texto", "#f5f7f2", "bg-foreground"],
 ] as const;
 const chartPalette = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5", "bg-chart-6", "bg-chart-7"];
 const panel = "rounded-card border border-border bg-card p-5 sm:p-7";
@@ -60,8 +60,8 @@ export function DesignSystemShowcase() {
       <DestinationImage seed="Triply biblioteca visual" className="rounded-feature border border-border">
         <div className="flex min-h-[260px] flex-col justify-end p-6 text-white sm:p-10">
           <p className="w-fit rounded-full border border-white/20 bg-black/35 px-3 py-1 text-xs font-medium backdrop-blur">Triply / Biblioteca visual</p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Design system</h1>
-          <p className="mt-3 max-w-2xl text-white/80">Escuro e quente, com imagens, gráficos e laranja para dar o próximo passo. Simples de ler, fácil de usar.</p>
+          <h1 className="mt-4 text-4xl font-light tracking-tight sm:text-6xl">Design system</h1>
+          <p className="mt-3 max-w-2xl text-white/80">Cinza-carvão e verde-lima, com imagens, gráficos e banners a toda a largura. Simples de ler, fácil de usar.</p>
         </div>
       </DestinationImage>
       <p className="mt-4 text-sm text-warning">Exemplos fictícios · Os dados desta página são apenas demonstrativos.</p>
@@ -69,10 +69,10 @@ export function DesignSystemShowcase() {
 
       <section id="fundamentos" aria-labelledby="foundations-title" className="py-9">
         <h2 id="foundations-title" className="text-2xl font-semibold">01 / Fundamentos</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Superfícies escuras em camadas, um laranja de ação e cores de gráfico distintas.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Superfícies escuras em camadas, um verde-lima de ação e cores de gráfico distintas.</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{palette.map(([label, value, color]) => <div key={label} className="overflow-hidden rounded-card border border-border"><div aria-hidden="true" className={`h-20 border-b border-border ${color}`} /><div className="p-3"><p className="text-sm font-medium">{label}</p><p className="mt-1 font-mono text-xs text-muted-foreground">{value}</p></div></div>)}</div>
         <div className="mt-3 flex gap-2" aria-label="Cores de gráfico">{chartPalette.map((color) => <span key={color} aria-hidden="true" className={`h-3 flex-1 rounded-full ${color}`} />)}</div>
-        <div className={`${panel} mt-6`}><p className="text-xs uppercase tracking-widest text-muted-foreground">Tipografia · Sistema / Inter quando disponível</p><p className="mt-5 text-3xl font-bold uppercase tracking-tight sm:text-4xl">Planeie a sua próxima viagem</p><p className="mt-4 max-w-xl leading-7 text-muted-foreground">Títulos fortes, texto com espaço para respirar e números fáceis de comparar. Uma viagem pode ter um ou muitos destinos.</p><p className="mt-5 font-mono text-sm text-muted-foreground">4 · 8 · 16 · 24 · 40 px / Raios: 12, 20 e 28 px</p></div>
+        <div className={`${panel} mt-6`}><p className="text-xs uppercase tracking-widest text-muted-foreground">Tipografia · Sistema / Inter quando disponível</p><p className="mt-5 text-4xl font-light tracking-tight sm:text-5xl">Planeie a sua <span className="font-semibold">próxima viagem</span></p><p className="mt-4 max-w-xl leading-7 text-muted-foreground">Títulos fortes, texto com espaço para respirar e números fáceis de comparar. Uma viagem pode ter um ou muitos destinos.</p><p className="mt-5 font-mono text-sm text-muted-foreground">4 · 8 · 16 · 24 · 40 px / Raios: 12, 20 e 28 px</p></div>
       </section>
 
       <section id="componentes" aria-labelledby="components-title" className="border-t border-border py-9">
@@ -107,9 +107,14 @@ export function DesignSystemShowcase() {
       <section aria-labelledby="dashboard-example-title" className="border-t border-border py-9">
         <h2 id="dashboard-example-title" className="text-2xl font-semibold">05 / Visão geral da viagem</h2>
         <p className="mb-6 mt-2 text-sm text-warning">Exemplos fictícios · Demonstração do dashboard com totais ilustrativos, secções vazias e erro de documentos simulado.</p>
-        <TripDashboard dashboard={exampleDashboard} today="2026-09-06" headingLevel={2} />
+        <PageHero bleed={false} seed="Tóquio" headingLevel={2} eyebrow={<><Icon name="calendar" size={14} />3 abr. 2027 — 17 abr. 2027</>} title={exampleTrip.name} meta={<><HeroChip icon="sun">15 dias</HeroChip><HeroChip icon="users">2 viajantes</HeroChip></>}><TripTabsPreview /></PageHero>
+        <div className="mt-4"><TripDashboard dashboard={exampleDashboard} today="2026-09-06" /></div>
       </section>
-      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Escuro + laranja, inspirado nas referências de layout de viagem do projeto.</footer>
+      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Carvão + verde-lima, inspirado nas referências de layout do projeto.</footer>
     </main>
   </AppShell>);
+}
+
+function TripTabsPreview() {
+  return <div aria-hidden="true" className="scroll-row w-fit max-w-full rounded-full border border-white/10 bg-black/45 p-1.5 backdrop-blur-md">{["Visão geral", "Rota", "Orçamento", "Poupança", "Itinerário"].map((label, index) => <span key={label} className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-medium ${index === 0 ? "bg-primary text-primary-foreground" : "text-white/80"}`}>{label}</span>)}</div>;
 }

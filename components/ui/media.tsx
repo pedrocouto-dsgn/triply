@@ -1,4 +1,6 @@
+/* eslint-disable @next/next/no-img-element -- remote photos and signed URLs are shown as-is, without the image optimizer. */
 import type { ReactNode } from "react";
+import type { PlaceImage } from "@/features/media/types";
 import { cn } from "@/lib/utils";
 
 // Illustrated image placeholders. Each destination name maps to a stable scene so the
@@ -53,11 +55,17 @@ export function SceneArt({ seed, className, variant }: { seed: string; className
   </svg>;
 }
 
-/** Image slot with an illustrated placeholder; overlay children sit above a readability gradient. */
-export function DestinationImage({ seed, className, children, overlay = true, label, variant }: { seed: string; className?: string; children?: ReactNode; overlay?: boolean; label?: string; variant?: number }) {
+/** Image slot: a real photo when available, otherwise an illustrated placeholder. Overlay children sit above a readability gradient. */
+export function DestinationImage({ seed, image, className, children, overlay = true, label, variant, showCredit = false }: { seed: string; image?: PlaceImage | null; className?: string; children?: ReactNode; overlay?: boolean | "bottom"; label?: string; variant?: number; showCredit?: boolean }) {
   return <div role={label ? "img" : undefined} aria-label={label} className={cn("relative isolate overflow-hidden bg-muted", className)}>
-    <SceneArt seed={seed} variant={variant} />
-    {overlay ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" /> : null}
+    {image ? <img src={image.src} alt={label ? "" : image.alt} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="absolute inset-0 size-full object-cover" /> : <SceneArt seed={seed} variant={variant} />}
+    {overlay === "bottom" ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-black/10" /> : overlay ? <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" /> : null}
     {children ? <div className="relative h-full">{children}</div> : null}
+    {showCredit && image?.credit ? <ImageCredit image={image} /> : null}
   </div>;
+}
+
+export function ImageCredit({ image, className }: { image: PlaceImage; className?: string }) {
+  if (!image.credit) return null;
+  return <p className={cn("absolute bottom-2 right-3 z-10 text-[10px] text-white/70", className)}>Foto: <a href={image.credit.profileUrl} target="_blank" rel="noreferrer" className="underline hover:text-white">{image.credit.name}</a> / <a href={image.credit.sourceUrl} target="_blank" rel="noreferrer" className="underline hover:text-white">{image.credit.source}</a></p>;
 }

@@ -1,7 +1,7 @@
 # SPEC — Module 03: Destinations & Travel Legs
 
-Version: 1.0  
-Status: APPROVED
+Version: 1.1  
+Status: APPROVED (v1.1 amendment approved by owner request, 2026-10-05)
 Module ID: `03-destinations-legs`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `AGENTS.md`, `docs/adr/ADR-003-time-and-route-model.md`  
 Primary handoff: Module 04 — Budget & Expenses
@@ -933,3 +933,16 @@ This module can become `APPROVED` when the product owner accepts the decisions i
 After approval, the orchestrator may release the Architecture Agent for `03-destinations-legs` under the autonomous quality gates.
 
 No implementation agent may infer alternative route semantics without an approved spec amendment.
+
+
+---
+
+## Amendment v1.1 — Destination cover image (owner request, 2026-10-05)
+
+- Each Stop may have one optional cover image uploaded by its owner. It is shown in trip banners, the route carousel, the stop details pop-up, the route timeline and itinerary day headers.
+- Upload happens on the edit-destination page. JPEG, PNG or WEBP, maximum 5 MB, validated on the server by file signature. The UI shows the recommended size of 1920 × 1080 px (16:9) and warns when a selected image is smaller than 1600 × 900 px.
+- Replacing an image deletes the previous object only after the new one is associated. Removing an image keeps the Stop unchanged.
+- Storage: private bucket `destination-images`, path `{user_id}/{trip_id}/{stop_id}/{uuid}.{ext}`, owner-only storage policies, short-lived signed URLs. Column `stops.image_path` is nullable (migration `202610050011_stop_images.sql`, additive).
+- Without an upload, a place photo from Unsplash is used when `UNSPLASH_ACCESS_KEY` is configured, with photographer attribution. Otherwise an illustrated placeholder is used. Unsplash receives only the place and country name, never user or trip data.
+- Selecting a destination card in the trip overview opens a details pop-up: image, dates, nights, timezone, arrival and departure transport, notes, and shortcuts to edit, itinerary and the full route.
+- The full route and its management live on `/trips/{id}/route`. The trip overview keeps a summary carousel.

@@ -3,6 +3,7 @@ import { Brand } from "@/components/shared/brand";
 import { ChartLegend, ColumnChart, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon, type IconName } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
+import { getPlacePhoto } from "@/features/media/unsplash";
 import { button, IconBadge } from "@/components/ui/page";
 
 const exampleRoute = [{ city: "Lisboa", country: "Portugal" }, { city: "Madrid", country: "Espanha" }, { city: "Paris", country: "França" }];
@@ -19,16 +20,17 @@ const features: { icon: IconName; title: string; description: string }[] = [
   { icon: "file", title: "Tudo pronto para partir", description: "Reservas, listas e documentos privados junto dos seus planos." },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [heroPhoto, ...photos] = await Promise.all([getPlacePhoto("Dolomites mountains road trip"), ...inspiration.map((place) => getPlacePhoto(`${place.city} ${place.country}`))]);
   return <main className="min-h-screen bg-background text-foreground">
-    <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-8"><Brand /><nav aria-label="Conta" className="flex items-center gap-2"><Link href="/auth/sign-in" className={button.ghost}>Iniciar sessão</Link><Link href="/auth/sign-up" className={button.secondary}>Criar conta</Link></nav></header>
-
-    <section className="mx-auto max-w-7xl px-4 sm:px-8">
-      <DestinationImage seed="Triply Alpes ao pôr do sol" variant={0} className="rounded-feature border border-border">
-        <div className="flex min-h-[540px] flex-col justify-between gap-10 p-6 sm:p-10 lg:p-14">
+    <section className="relative">
+      <DestinationImage seed="Triply Alpes ao pôr do sol" variant={0} image={heroPhoto} overlay="bottom" showCredit className="w-full">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/55 to-transparent" />
+        <header className="relative mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-8"><Brand tone="light" /><nav aria-label="Conta" className="flex items-center gap-2"><Link href="/auth/sign-in" className={button.glass}>Iniciar sessão</Link><Link href="/auth/sign-up" className={button.primary}>Criar conta</Link></nav></header>
+        <div className="relative mx-auto flex min-h-[620px] max-w-7xl flex-col justify-between gap-10 px-4 pb-10 pt-10 sm:px-8 lg:pt-20">
           <div className="max-w-2xl text-white">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs font-medium backdrop-blur"><Icon name="sparkles" size={14} />Um espaço para a viagem inteira</p>
-            <h1 className="mt-6 border-l-4 border-primary pl-5 text-5xl font-bold uppercase leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-7xl">Planeie a sua<br />próxima viagem</h1>
+            <h1 className="mt-6 border-l-4 border-primary pl-5 text-5xl font-light leading-[1.02] tracking-[-0.03em] sm:text-6xl lg:text-7xl">Planeie a sua<br /><span className="font-semibold">próxima viagem</span></h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-white/85 sm:text-lg">Destinos, orçamento, itinerário e documentos num único lugar. Do primeiro esboço a cada etapa pelo caminho.</p>
             <div className="mt-8 flex flex-wrap gap-3"><Link className={button.primary} href="/auth/sign-up">Começar a planear <Icon name="arrowUpRight" size={16} /></Link><Link className={button.glass} href="/auth/sign-in">Já tenho conta</Link></div>
           </div>
@@ -42,7 +44,7 @@ export default function HomePage() {
 
     <section aria-labelledby="inspiration-title" className="mx-auto mt-16 max-w-7xl px-4 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-link">Inspiração</p><h2 id="inspiration-title" className="mt-2 text-3xl font-semibold tracking-tight">Para onde vai a seguir?</h2></div><p className="text-sm text-muted-foreground">Exemplos ilustrativos · as imagens são marcadores visuais.</p></div>
-      <div className="scroll-row mt-6">{inspiration.map((place) => <DestinationImage key={place.city} seed={place.city} className="h-64 w-56 rounded-card border border-border sm:w-64"><div className="flex h-full flex-col justify-between p-4 text-white"><span className="w-fit rounded-full bg-black/40 px-2.5 py-1 text-xs backdrop-blur">{place.tag}</span><div><p className="text-xl font-semibold">{place.city}</p><p className="flex items-center gap-1 text-sm text-white/75"><Icon name="mapPin" size={14} />{place.country}</p></div></div></DestinationImage>)}</div>
+      <div className="scroll-row mt-6">{inspiration.map((place, index) => <DestinationImage key={place.city} seed={place.city} image={photos[index]} className="h-64 w-56 rounded-card border border-border sm:w-64"><div className="flex h-full flex-col justify-between p-4 text-white"><span className="w-fit rounded-full bg-black/40 px-2.5 py-1 text-xs backdrop-blur">{place.tag}</span><div><p className="text-xl font-semibold">{place.city}</p><p className="flex items-center gap-1 text-sm text-white/75"><Icon name="mapPin" size={14} />{place.country}</p></div></div></DestinationImage>)}</div>
     </section>
 
     <section aria-labelledby="features-title" className="mx-auto mt-16 max-w-7xl px-4 sm:px-8">

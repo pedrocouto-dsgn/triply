@@ -29,7 +29,7 @@ describe("Triply dark theme contrast", () => {
     ["muted-foreground", "card"], ["muted-foreground", "muted"], ["muted-foreground", "elevated"],
     ["primary-foreground", "primary"], ["primary-foreground", "primary-hover"],
     ["danger-foreground", "danger"], ["danger-foreground", "danger-hover"], ["link", "card"], ["link", "background"],
-    ["success", "success-muted"], ["warning", "warning-muted"],
+    ["success", "success-muted"], ["warning", "warning-muted"], ["light-foreground", "light"],
     ["destructive", "destructive-muted"],
   ])("%s text on %s meets AA for normal text", (text, background) => {
     expect(contrast(text, background)).toBeGreaterThanOrEqual(4.5);
@@ -54,6 +54,6 @@ describe("workspace navigation", () => {
     const activeLinks = links.filter((link) => link.includes('aria-current="page"'));
     expect(activeLinks.length).toBe(2); // Desktop and mobile navigation.
     expect(activeLinks.every((link) => link.includes("Orçamento"))).toBe(true);
-    expect(html).toContain('href="/trips/example#route"');
+    expect(html).toContain('href="/trips/example/route"');
   });
 });

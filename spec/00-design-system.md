@@ -1,9 +1,9 @@
 # Triply Design System
-Version: 2.0 — Dark + orange travel workspace
-Status: Implemented on 2026-10-05 under the visual direction requested by the owner on 2026-10-05 (reference folder `Refs/`, 12 images). Supersedes v1.0 (Notion dark adaptation, 2026-09-07).
+Version: 2.1 — Charcoal + lime travel workspace
+Status: Implemented on 2026-10-05. v2.1 (same day, owner request) replaces orange with lime green and follows the "salesforce invoices" reference (`Refs/6483e2cb739e4f9ac22b4310a6d0bdf7.jpg`): charcoal surfaces, lime actions, light-weight large titles, pill tab bar, one light contrast panel. Banners are full width with a bottom gradient into the page; the sidebar can be collapsed. Supersedes v1.0 (Notion dark, 2026-09-07).
 
 ## Direction
-The owner found v1.0 confusing and text-heavy and asked for a more visual, simpler platform: banners, image cards and carousels with image placeholders, donut and other charts. The owner chose "dark + orange" from three options.
+The owner found v1.0 confusing and text-heavy and asked for a more visual, simpler platform: banners, image cards and carousels with image placeholders, donut and other charts. The owner first chose "dark + orange", then asked for green with the layout and colours of the salesforce invoices reference (v2.1).
 
 Reference synthesis (`Refs/`):
 - "Plan your next trip" tablet (orange on near-black): bold uppercase hero, photo cards, orange primary actions. Main palette source.
@@ -19,30 +19,31 @@ Triply keeps its domain rules. Trips stay multi-stop, money labels stay explicit
 ## Semantic tokens
 | Token | Value | Role |
 | --- | --- | --- |
-| background | #0f0f10 | Page canvas |
-| foreground | #fafafa | Primary content |
-| card | #18181b | Cards, panels |
-| surface | #141416 | Sidebar, inputs, nested rows |
-| elevated | #1f1f23 | Active navigation, secondary buttons |
-| muted | #27272a | Hover, chart track, subtle fill |
-| muted-foreground | #a1a1aa | Secondary text |
-| primary / primary-hover | #ff6b2c / #ff8a57 | Main action (orange) |
-| primary-foreground | #1a0b03 | Text on orange (AA) |
-| primary-muted | #3a1d10 | Orange-tinted badges and icons |
-| link | #ff9a66 | Inline links |
-| border | #ffffff1a | Structural borders |
-| input | #71717a | Control borders |
-| ring | #ff8a57 | Keyboard focus |
-| success / success-muted | #4ade80 / #0f2a1c | Completion |
+| background | #111315 | Page canvas |
+| foreground | #f5f7f2 | Primary content |
+| card | #1c2024 | Cards, panels |
+| surface | #16191c | Sidebar, inputs, nested rows |
+| elevated | #252a2f | Active navigation, secondary buttons |
+| muted | #2c3238 | Hover, chart track |
+| muted-foreground | #9ca3ab | Secondary text |
+| primary / primary-hover | #c6f432 / #d6ff5e | Main action (lime) |
+| primary-foreground | #10140a | Text on lime |
+| primary-muted | #263212 | Lime-tinted badges and icons |
+| link | #cdf65a | Inline links |
+| border | #ffffff17 | Structural borders |
+| input | #6b737b | Control borders |
+| ring | #c6f432 | Keyboard focus |
+| light / light-foreground | #f3f5ef / #111315 | Light contrast panel (attention list) |
+| success / success-muted | #4ade80 / #10291a | Completion |
 | warning / warning-muted | #fbbf24 / #2e2410 | Review and attention |
 | destructive / destructive-muted | #ff8a8a / #3a1a1c | Errors |
 | danger / danger-hover / danger-foreground | #c93a40 / #a92f35 / #ffffff | Destructive buttons |
-| chart-1…7 | #ff6b2c, #ffb36b, #3cc6b5, #7c8cff, #c084fc, #f472b6, #94a3b8 | Chart series |
+| chart-1…7 | #c6f432, #fbbf24, #2dd4bf, #60a5fa, #a78bfa, #fb7185, #94a3b8 | Chart series (lime, amber, teal, blue, violet, rose, slate) |
 
 Use semantic utilities. Raw hex values are allowed only inside the illustrated scene palette of `media.tsx`. Information never relies only on colour: every chart has a text legend or label with values. Financial labels stay explicit: estimated, forecast, committed, paid and actual.
 
 ## Type and spacing
-System sans stack (Inter when available). No font download. Display hero copy may be bold uppercase (landing). Page titles 32–48px, section titles 20px, metadata 12px. Tabular numerals for money. Spacing 4/8/12/16/24/32/40/64px. Content up to 1280px (`max-w-7xl`); forms 768px. Desktop sidebar 260px. Mobile: sticky top bar with a native disclosure menu, 16px gutters, no page-level horizontal scroll. Carousels (`.scroll-row`) scroll inside their own region.
+System sans stack (Inter when available). No font download. Display hero copy may be bold uppercase (landing). Page titles 32–48px, section titles 20px, metadata 12px. Tabular numerals for money. Spacing 4/8/12/16/24/32/40/64px. Content up to 1280px (`max-w-7xl`); forms 768px. Desktop sidebar 260px, collapsible to an 84px icon rail (preference stored per browser). Page banners are full-bleed above the content column and fade into the background at the bottom. Mobile: sticky top bar with a native disclosure menu, 16px gutters, no page-level horizontal scroll. Carousels (`.scroll-row`) scroll inside their own region.
 
 Radii: controls 12px, cards 20px, feature panels/banners 28px, buttons and badges fully rounded.
 
@@ -57,7 +58,8 @@ Radii: controls 12px, cards 20px, feature panels/banners 28px, buttons and badge
 - Landing: full-width image hero with uppercase headline, CTA and example route bar; inspiration carousel (labelled as examples); feature tiles; example chart preview.
 - Auth/onboarding: illustrated image panel and a glass form card.
 - Trips: identity header, featured next trip banner with countdown, trip-status donut, stat tiles, image trip cards with an orange action corner, archive section.
-- Trip overview: image hero with countdown, dates, duration, travellers and stop count; stat tiles; finance donut (paid / committed unpaid / planned unbooked / budget margin) with explicit metrics; savings ring; route carousel of destination image cards with travel-mode connectors; attention list; upcoming itinerary with date badges; reservations donut, checklist ring, documents validity donut. The full route timeline and trip management stay below.
+- Trip pages: shared `TripHero` (full-width photo banner, back link, title, pill tab bar for overview/route/budget/savings/itinerary/planning/documents/settings).
+- Trip overview: image hero with countdown, dates, duration, travellers and stop count; stat tiles; finance donut (paid / committed unpaid / planned unbooked / budget margin) with explicit metrics; savings ring; "next step" lime callout; route carousel of destination photo cards (each opens a details pop-up) with travel-mode connectors; attention list; upcoming itinerary with date badges; reservations donut, checklist ring, documents validity donut. The full route timeline and trip management stay below.
 - Finance: stat tiles, budget-usage stacked bar, category donut, destination bar list, cost rows with category colour, history rows.
 - Savings: large ring, funding-source donut, stat tiles, pace cards.
 - Itinerary: day strip (calendar chips) with an activities-per-day column chart; day cards with date badge, destination thumbnail, transport rows and a time-pill timeline.

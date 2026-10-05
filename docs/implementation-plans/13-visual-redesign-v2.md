@@ -24,3 +24,17 @@ See the final validation section below.
 - `npm run harness:typecheck`: FAIL, pre-existing and unchanged (missing `execa` and `enquirer` modules in the harness; reproduced on the unmodified tree).
 - Visual review: screenshots of landing, sign-in and `/design-system` at 1440px and 375px. A horizontal overflow at 375/768px was fixed by making `.scroll-row` contain absolutely positioned screen-reader text.
 - Not exercised: authenticated pages with a live account. They are covered by typecheck, build and the shared components rendered in `/design-system`.
+
+## v2.1 — owner change requests (2026-10-05)
+1. Lime green instead of orange, with the layout and colours of `Refs/6483e2cb739e4f9ac22b4310a6d0bdf7.jpg`.
+2. Every banner is full width with a bottom gradient. All trip pages share `TripHero` and a pill tab bar.
+3. "Rota e destinos" now has its own page, `/trips/{id}/route`. The old `#route` anchor link did not work reliably. Route actions now redirect there and show their status messages.
+4. The sidebar collapses and expands, and the preference is stored in localStorage via `useSyncExternalStore`.
+5. Real photos: the owner chose Unsplash (new external service, approved by owner choice). It needs the server-only `UNSPLASH_ACCESS_KEY` and falls back to illustrations. The owner's upload always wins.
+6. A route card opens a details pop-up (native `<dialog>`).
+7. Destination image upload on the edit page shows the recommended size (spec 03 amendment v1.1, additive migration `202610050011_stop_images.sql`, private bucket).
+
+Scope additions: `features/media/*`, `features/route/images.ts`, `image-actions.ts`, `image-types.ts`, `route-carousel.tsx`, `stop-image-form.tsx`, `app/(app)/trips/[tripId]/route/page.tsx`, the route actions redirect target, spec 03 amendment, migration, `.env.example`.
+
+Validation (v2.1): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 142/142; build PASS; E2E 9/9; harness 86/86. The route pop-up was tested in the browser (opens, shows details, closes with Esc, no page errors). No horizontal overflow at 375px.
+Pending owner actions: apply the migration in Supabase; create an Unsplash access key and set `UNSPLASH_ACCESS_KEY` in `.env.local` and in Vercel.

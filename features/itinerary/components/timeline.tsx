@@ -3,6 +3,7 @@ import { ColumnChart } from "@/components/ui/charts";
 import { Icon, travelModeIcons } from "@/components/ui/icons";
 import { DestinationImage } from "@/components/ui/media";
 import { button, Panel, SectionHeader } from "@/components/ui/page";
+import type { PlaceImage } from "@/features/media/types";
 import type { Trip } from "@/features/trips/types";
 import type { TripDay } from "../days";
 import { overlappingItemIds } from "../days";
@@ -36,7 +37,7 @@ export function ItineraryOverview({ days }: { days: TripDay[] }) {
   </Panel>;
 }
 
-export function ItineraryTimeline({ trip, days }: { trip: Trip; days: TripDay[] }) {
+export function ItineraryTimeline({ trip, days, images = {} }: { trip: Trip; days: TripDay[]; images?: Record<string, PlaceImage> }) {
   return <div className="space-y-6">{days.map((day, index) => {
     const overlaps = overlappingItemIds(day.items);
     const untimed = day.items.filter((item) => !item.startLocalTime);
@@ -45,7 +46,7 @@ export function ItineraryTimeline({ trip, days }: { trip: Trip; days: TripDay[] 
     const place = day.stops[0]?.placeName;
     return <section key={day.date} id={`day-${day.date}`} className="scroll-mt-20 overflow-hidden rounded-card border border-border bg-card">
       <header className="flex flex-wrap items-center gap-4 border-b border-border p-4 sm:p-5">
-        {place ? <DestinationImage seed={place} overlay={false} className="hidden size-16 shrink-0 rounded-2xl sm:block" /> : null}
+        {place ? <DestinationImage seed={place} image={images[day.stops[0].id]} overlay={false} className="hidden size-16 shrink-0 rounded-2xl sm:block" /> : null}
         <span className="flex w-16 shrink-0 flex-col items-center rounded-2xl bg-primary py-2 text-primary-foreground"><span className="text-[11px] font-semibold uppercase">{parts.month}</span><span className="text-2xl font-bold leading-none">{parts.day}</span></span>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold uppercase tracking-widest text-link">Dia {index + 1}{day.isTransition ? " · Transição" : ""}</p>

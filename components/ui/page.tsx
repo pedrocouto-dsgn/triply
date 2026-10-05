@@ -2,46 +2,57 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Icon, type IconName } from "./icons";
+import type { PlaceImage } from "@/features/media/types";
 import { DestinationImage } from "./media";
 
 export const button = {
   primary: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60",
   secondary: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-elevated px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-60",
   ghost: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground",
-  glass: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 bg-black/35 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur hover:bg-black/55",
+  glass: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-black/35 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur hover:bg-black/55",
+  light: "inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-background hover:bg-white/85",
 } as const;
 
-export function PageContainer({ children, width = "wide", className }: { children: ReactNode; width?: "wide" | "medium" | "narrow"; className?: string }) {
-  const max = width === "wide" ? "max-w-7xl" : width === "medium" ? "max-w-5xl" : "max-w-3xl";
-  return <main className={cn("min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-10 lg:py-8", className)}><div className={cn("mx-auto", max)}>{children}</div></main>;
+const widths = { wide: "max-w-7xl", medium: "max-w-5xl", narrow: "max-w-3xl" } as const;
+
+/** Page frame. A `hero` renders edge to edge above the constrained content column. */
+export function PageContainer({ children, width = "wide", className, hero }: { children: ReactNode; width?: keyof typeof widths; className?: string; hero?: ReactNode }) {
+  return <main className={cn("min-h-screen bg-background pb-12 text-foreground", hero ? "" : "pt-6 lg:pt-8", className)}>
+    {hero}
+    <div className={cn("px-4 sm:px-6 lg:px-10", hero ? "pt-6" : "")}><div className={cn("mx-auto", widths[width])}>{children}</div></div>
+  </main>;
 }
 
-export function BackLink({ href, children }: { href: string; children: ReactNode }) {
-  return <Link href={href} className="inline-flex min-h-11 items-center gap-2 rounded-full pr-3 text-sm font-medium text-muted-foreground hover:text-foreground"><span className="flex size-8 items-center justify-center rounded-full border border-border bg-card"><Icon name="arrowLeft" size={16} /></span>{children}</Link>;
+export function BackLink({ href, children, tone = "default" }: { href: string; children: ReactNode; tone?: "default" | "glass" }) {
+  return <Link href={href} className={cn("inline-flex min-h-11 items-center gap-2 rounded-full pr-4 text-sm font-medium", tone === "glass" ? "border border-white/15 bg-black/35 pl-1 text-white backdrop-blur hover:bg-black/55" : "text-muted-foreground hover:text-foreground")}><span className={cn("flex size-9 items-center justify-center rounded-full", tone === "glass" ? "bg-white/10" : "border border-border bg-card")}><Icon name="arrowLeft" size={16} /></span>{children}</Link>;
 }
 
-/** Image banner used at the top of trip pages. */
-export function PageHero({ seed, eyebrow, title, description, actions, meta, children, size = "md", headingLevel = 1 }: { seed: string; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; meta?: ReactNode; children?: ReactNode; size?: "sm" | "md" | "lg"; headingLevel?: 1 | 2 }) {
+/**
+ * Banner with a photo (or illustration). Full-bleed by default: it spans the whole content
+ * area and fades into the page background at the bottom.
+ */
+export function PageHero({ seed, image, eyebrow, title, description, actions, meta, children, size = "md", headingLevel = 1, back, bleed = true, width = "wide" }: { seed: string; image?: PlaceImage | null; eyebrow?: ReactNode; title: ReactNode; description?: ReactNode; actions?: ReactNode; meta?: ReactNode; children?: ReactNode; size?: "sm" | "md" | "lg"; headingLevel?: 1 | 2; back?: { href: string; label: string }; bleed?: boolean; width?: keyof typeof widths }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
-  const height = size === "lg" ? "min-h-[300px] sm:min-h-[340px]" : size === "md" ? "min-h-[220px] sm:min-h-[250px]" : "min-h-[170px]";
-  return <DestinationImage seed={seed} className={cn("rounded-feature border border-border", height)}>
-    <div className={cn("flex h-full flex-col justify-end gap-5 p-5 sm:p-8", height)}>
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div className="min-w-0 max-w-3xl text-white">
-          {eyebrow ? <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-3 py-1 text-xs font-medium backdrop-blur">{eyebrow}</p> : null}
-          <Heading className="mt-3 text-3xl font-semibold tracking-tight drop-shadow sm:text-5xl">{title}</Heading>
-          {description ? <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">{description}</p> : null}
+  const height = size === "lg" ? "min-h-[380px] sm:min-h-[460px]" : size === "md" ? "min-h-[300px] sm:min-h-[360px]" : "min-h-[240px] sm:min-h-[280px]";
+  return <DestinationImage seed={seed} image={image} overlay="bottom" showCredit className={cn("w-full", bleed ? "" : "rounded-feature border border-border", height)}>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent" />
+    <div className={cn("relative flex h-full flex-col gap-6 px-4 pb-6 pt-5 sm:px-6 lg:px-10", height)}>
+      <div className={cn("mx-auto flex w-full flex-1 flex-col justify-between gap-6", bleed ? widths[width] : "")}>
+        <div className="flex min-h-11 flex-wrap items-center justify-between gap-3">{back ? <BackLink href={back.href} tone="glass">{back.label}</BackLink> : <span />}{actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}</div>
+        <div className="min-w-0 max-w-4xl">
+          {eyebrow ? <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1 text-xs font-medium text-white backdrop-blur">{eyebrow}</p> : null}
+          <Heading className="mt-3 text-4xl font-light tracking-tight text-foreground drop-shadow-sm sm:text-6xl">{title}</Heading>
+          {description ? <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/80 sm:text-base">{description}</p> : null}
           {meta ? <div className="mt-4 flex flex-wrap gap-2">{meta}</div> : null}
         </div>
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        {children}
       </div>
-      {children}
     </div>
   </DestinationImage>;
 }
 
 export function HeroChip({ icon, children }: { icon?: IconName; children: ReactNode }) {
-  return <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">{icon ? <Icon name={icon} size={14} /> : null}{children}</span>;
+  return <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-elevated/80 px-3 py-1.5 text-xs font-medium text-foreground backdrop-blur">{icon ? <Icon name={icon} size={14} /> : null}{children}</span>;
 }
 
 export function SectionHeader({ title, description, action, id, as: Heading = "h2" }: { title: ReactNode; description?: ReactNode; action?: ReactNode; id?: string; as?: "h2" | "h3" }) {

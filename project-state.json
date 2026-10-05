@@ -196,7 +196,8 @@
           "approvedAt": null,
           "notes": null
         }
-      }
+      },
+      "spec_version": "1.1"
     },
     "04-budget-expenses": {
       "name": "Budget & Expenses",
@@ -730,6 +731,16 @@
       "date": "2026-10-05",
       "module": "visual-redesign-v2",
       "decision": "Owner requested a full, more visual layout redesign from Refs/ (banners, image cards, carousels with image placeholders, donut and other charts) and chose the dark + orange theme. Design system v2.0 supersedes v1.0. No functional specs, data model, auth or dependencies changed."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "03-destinations-legs",
+      "decision": "Owner requested destination image upload (with recommended size hint), real place photos, a route details pop-up and a working route section. Spec 03 amended to v1.1. Owner chose Unsplash as the photo source (new external service; server-only UNSPLASH_ACCESS_KEY). Additive migration 202610050011 adds stops.image_path and a private destination-images bucket with owner-only policies."
+    },
+    {
+      "date": "2026-10-05",
+      "module": "visual-redesign-v2",
+      "decision": "Owner replaced orange with lime green and asked for the layout/colours of the salesforce invoices reference, full-width banners with bottom gradient, and a collapsible sidebar. Design system v2.1."
     }
   ],
   "git_log": [
@@ -884,7 +895,7 @@
     "branch": "feat/visual-redesign-v2",
     "design_system": "spec/00-design-system.md (v2.0)",
     "implementation_plan": "docs/implementation-plans/13-visual-redesign-v2.md",
-    "theme": "dark + orange (owner choice)",
+    "theme": "charcoal + lime (v2.1, owner change request; supersedes dark + orange)",
     "references": "Refs/ (12 images)",
     "validation": {
       "typecheck": "pass",
@@ -893,7 +904,7 @@
         "preexisting_warnings": 14
       },
       "unit_tests": {
-        "passed": 141,
+        "passed": 142,
         "failed": 0
       },
       "build": "pass",
@@ -911,6 +922,10 @@
       "Authenticated pages not exercised with a live account",
       "Images are illustrated placeholders; real photos not yet supported",
       "Not merged, pushed or deployed"
+    ],
+    "pending_owner_actions": [
+      "Apply supabase/migrations/202610050011_stop_images.sql in the Supabase SQL editor",
+      "Create an Unsplash access key and set UNSPLASH_ACCESS_KEY in .env.local and Vercel (Production and Preview)"
     ]
   }
 }

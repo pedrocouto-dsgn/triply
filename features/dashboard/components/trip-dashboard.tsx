@@ -2,13 +2,13 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ChartLegend, DonutChart, RingProgress } from "@/components/ui/charts";
 import { Icon, travelModeIcons, type IconName } from "@/components/ui/icons";
-import { DestinationImage } from "@/components/ui/media";
-import { Badge, button, HeroChip, IconBadge, PageHero, StatTile, type Tone } from "@/components/ui/page";
+import { Badge, IconBadge, StatTile, type Tone } from "@/components/ui/page";
+import type { PlaceImage } from "@/features/media/types";
+import { RouteCarousel } from "@/features/route/components/route-carousel";
 import { deriveDocumentValidity } from "@/features/documents/helpers";
 import { documentTypeLabels } from "@/features/documents/labels";
-import { formatTripDate, formatTripDateRange } from "@/features/trips/date";
 import { formatMinorUnits } from "@/features/trips/money";
-import { buildAttention, countdownLabel, durationDays, financialHealth, routeContext, upcomingItinerary } from "../aggregation";
+import { buildAttention, financialHealth, routeContext, upcomingItinerary } from "../aggregation";
 import type { AttentionTier, DashboardData, SectionResult } from "../types";
 
 const travelModeLabels = { plane: "Avião", train: "Comboio", bus: "Autocarro", car: "Carro", ferry: "Ferry", other: "Outro" };
@@ -23,11 +23,10 @@ const tierMeta: Record<AttentionTier, { label: string; tone: Tone; icon: IconNam
 const money = (value: bigint | null, currency: DashboardData["trip"]["baseCurrency"]) => formatMinorUnits(value?.toString() ?? null, currency) ?? "—";
 const max0 = (value: bigint) => (value > 0n ? value : 0n);
 
-export function TripDashboard({ dashboard, today, headingLevel = 1, actions }: {
+export function TripDashboard({ dashboard, today, images = {} }: {
   dashboard: DashboardData;
   today: string;
-  headingLevel?: 1 | 2;
-  actions?: ReactNode;
+  images?: Record<string, PlaceImage>;
 }) {
   const { trip } = dashboard;
   const route = dashboard.route.status === "ready" ? routeContext(dashboard.route.data, today) : null;
@@ -37,7 +36,6 @@ export function TripDashboard({ dashboard, today, headingLevel = 1, actions }: {
   const documents = dashboard.documents.status === "ready" ? dashboard.documents.data : null;
   const attention = buildAttention({ trip, today, health, savings, route: dashboard.route.status === "ready" ? dashboard.route.data : null, planning, documents });
   const cta = !route?.stopCount ? { label: "Adicionar primeiro destino", href: `/trips/${trip.id}/destinations/new` } : dashboard.finance.status !== "ready" || !dashboard.finance.data.data.costs.length ? { label: "Planear orçamento", href: `/trips/${trip.id}/finance` } : dashboard.itinerary.status !== "ready" || !dashboard.itinerary.data.length ? { label: "Planear itinerário", href: `/trips/${trip.id}/itinerary/new` } : attention.length ? { label: "Rever tarefas da viagem", href: "#attention" } : { label: "Ver itinerário", href: `/trips/${trip.id}/itinerary` };
-  const heroSeed = route?.orderedStops[0]?.placeName ?? trip.name;
   const progressPercent = savings?.progressBasisPoints != null ? Number(savings.progressBasisPoints) / 100 : 0;
   const checklist = planning?.checklist ?? [];
   const checklistDone = checklist.filter((item) => item.isCompleted).length;
@@ -45,14 +43,8 @@ export function TripDashboard({ dashboard, today, headingLevel = 1, actions }: {
   const upcoming = dashboard.itinerary.status === "ready" ? upcomingItinerary(dashboard.itinerary.data, today) : [];
 
   return <>
-    <PageHero seed={heroSeed} size="lg" headingLevel={headingLevel}
-      eyebrow={<><Icon name="clock" size={14} />{trip.archivedAt ? "Arquivada · " : ""}{countdownLabel(trip, today)}</>}
-      title={trip.name}
-      meta={<><HeroChip icon="calendar">{formatTripDateRange(trip.startDate, trip.endDate)}</HeroChip><HeroChip icon="sun">{durationDays(trip.startDate, trip.endDate)} dias</HeroChip><HeroChip icon="users">{trip.travelersCount} {trip.travelersCount === 1 ? "viajante" : "viajantes"}</HeroChip>{route?.stopCount ? <HeroChip icon="mapPin">{route.stopCount} {route.stopCount === 1 ? "destino" : "destinos"}</HeroChip> : null}</>}
-      actions={<>{actions}<Link href={cta.href} className={button.primary}>{cta.label}<Icon name="arrowRight" size={16} /></Link></>}
-    />
-
-    <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <Link href={cta.href} className="group mb-4 flex items-center gap-4 rounded-card bg-primary p-4 text-primary-foreground sm:p-5"><span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-black/10"><Icon name="sparkles" size={20} /></span><span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide opacity-70">Próximo passo</span><span className="block text-lg font-semibold">{cta.label}</span></span><span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-black/10 transition-transform group-hover:translate-x-1"><Icon name="arrowRight" size={18} /></span></Link>
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <StatTile icon="mapPin" label="Destinos" value={route?.stopCount ?? "—"} hint={route ? `${route.countryCount} ${route.countryCount === 1 ? "país" : "países"}` : undefined} />
       <StatTile icon="wallet" tone={healthTones[health]} label="Orçamento" value={formatMinorUnits(trip.targetBudgetMinor, trip.baseCurrency) ?? "Não definido"} hint={healthLabels[health]} />
       <StatTile icon="piggy" tone="success" label="Financiado" value={savings?.targetMinor != null ? `${Math.round(progressPercent)}%` : "—"} hint={savings?.targetMinor != null ? `${money(savings.totalFundedMinor, trip.baseCurrency)} de ${money(savings.targetMinor, trip.baseCurrency)}` : "Sem objetivo"} />
@@ -67,30 +59,19 @@ export function TripDashboard({ dashboard, today, headingLevel = 1, actions }: {
       </div> : dashboard.savings.status === "ready" ? <p className="text-muted-foreground">Defina um orçamento ou previsão para criar um objetivo de poupança.</p> : null}</Card>
     </div>
 
-    <Card title="Rota" icon="route" href={`/trips/${trip.id}/destinations/new`} linkLabel="Adicionar destino" result={dashboard.route} className="mt-4">{route?.stopCount ? <>
-      <p className="text-sm text-muted-foreground">{route.stopCount} destinos · {route.countryCount} países · {route.currentStop ? `Destino atual: ${route.currentStop.placeName}` : route.nextStop ? `Próximo destino: ${route.nextStop.placeName}` : "Rota histórica"}</p>
-      <ol aria-label="Destinos por ordem" className="scroll-row mt-4 items-center">
-        {trip.originLabel ? <li className="flex items-center gap-3"><RouteBoundary label={trip.originLabel} caption="Partida" /><Connector /></li> : null}
-        {route.orderedStops.map((stop, index) => {
-          const leg = dashboard.route.status === "ready" ? dashboard.route.data.legs.find((item) => item.fromStopId === stop.id && item.status !== "cancelled") : undefined;
-          const isCurrent = route.currentStop?.id === stop.id;
-          return <li key={stop.id} className="flex items-center gap-3">
-            <DestinationImage seed={stop.placeName} className={`h-44 w-52 rounded-2xl border ${isCurrent ? "border-primary" : "border-border"}`}><div className="flex h-full flex-col justify-between p-3 text-white"><div className="flex items-center justify-between gap-2"><span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{index + 1}</span>{isCurrent ? <span className="rounded-full bg-black/50 px-2 py-0.5 text-[11px] font-semibold backdrop-blur">Agora</span> : null}</div><div><p className="truncate font-semibold">{stop.placeName}</p><p className="truncate text-xs text-white/75">{stop.countryName} · {formatTripDate(stop.arrivalDate)}</p></div></div></DestinationImage>
-            {index < route.orderedStops.length - 1 || trip.returnLabel ? <Connector mode={leg?.mode} /> : null}
-          </li>;
-        })}
-        {trip.returnLabel ? <li><RouteBoundary label={trip.returnLabel} caption="Regresso" /></li> : null}
-      </ol>
+    <Card title="Rota" icon="route" href={`/trips/${trip.id}/route`} linkLabel="Ver rota completa" result={dashboard.route} className="mt-4">{route?.stopCount ? <>
+      <p className="text-sm text-muted-foreground">Toque num destino para ver os detalhes · {route.stopCount} destinos · {route.countryCount} países · {route.currentStop ? `Destino atual: ${route.currentStop.placeName}` : route.nextStop ? `Próximo destino: ${route.nextStop.placeName}` : "Rota histórica"}</p>
+      <RouteCarousel tripId={trip.id} stops={route.orderedStops} legs={dashboard.route.status === "ready" ? dashboard.route.data.legs : []} images={images} originLabel={trip.originLabel} returnLabel={trip.returnLabel} currentStopId={route.currentStop?.id ?? null} />
       {route.nextLeg ? <Link href={`/trips/${trip.id}/transport/${route.nextLeg.id}/edit`} className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-sm hover:border-primary/50"><IconBadge icon={travelModeIcons[route.nextLeg.mode]} size="sm" /><span className="min-w-0 flex-1"><span className="block font-semibold">Próximo transporte: {travelModeLabels[route.nextLeg.mode]}</span><span className="text-muted-foreground">{route.nextLeg.departureDate}{route.nextLeg.departureTime ? ` às ${route.nextLeg.departureTime}` : ""}</span></span><Icon name="chevronRight" size={16} className="text-muted-foreground" /></Link> : null}
     </> : dashboard.route.status === "ready" ? <EmptyLine icon="mapPin">Ainda não existem destinos.</EmptyLine> : null}</Card>
 
     <div className="mt-4 grid gap-4 lg:grid-cols-2">
-      <section id="attention" aria-labelledby="attention-title" className="min-w-0 rounded-card border border-border bg-card p-5 sm:p-6">
+      <section id="attention" aria-labelledby="attention-title" className="min-w-0 rounded-card bg-light p-5 text-light-foreground sm:p-6">
         <div className="flex items-center gap-3"><IconBadge icon="alert" tone={attention.length ? "warning" : "success"} size="sm" /><h2 id="attention-title" className="text-base font-semibold">Precisa de atenção</h2>{attention.length ? <Badge tone="warning" className="ml-auto">{attention.length}</Badge> : null}</div>
-        {attention.length ? <div className="mt-4 space-y-2">{attention.map((item) => <Link key={item.key} href={item.href} className="flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-3 transition-colors hover:border-primary/50">
+        {attention.length ? <div className="mt-4 space-y-2">{attention.map((item) => <Link key={item.key} href={item.href} className="flex items-start gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 transition-colors hover:border-black/30">
           <IconBadge icon={tierMeta[item.tier].icon} tone={tierMeta[item.tier].tone} size="sm" />
-          <span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tierMeta[item.tier].label}</span><span className="mt-0.5 block font-semibold">{item.title}</span><span className="mt-0.5 block text-sm text-muted-foreground">{item.detail}</span></span>
-        </Link>)}</div> : <EmptyLine icon="check">Nada urgente precisa da sua atenção.</EmptyLine>}
+          <span className="min-w-0 flex-1"><span className="block text-xs font-semibold uppercase tracking-wide text-black/55">{tierMeta[item.tier].label}</span><span className="mt-0.5 block font-semibold">{item.title}</span><span className="mt-0.5 block text-sm text-black/60">{item.detail}</span></span>
+        </Link>)}</div> : <p className="mt-4 flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 text-sm text-black/65"><Icon name="check" size={18} />Nada urgente precisa da sua atenção.</p>}
       </section>
       <Card title="Próximo itinerário" icon="calendar" href={`/trips/${trip.id}/itinerary`} result={dashboard.itinerary}>{dashboard.itinerary.status === "ready" ? upcoming.length ? <ol className="space-y-2">{upcoming.map((item) => {
         const [, month, day] = item.tripDate.split("-");
@@ -148,13 +129,7 @@ function DonutBlock({ label, segments, total, unit }: { label: string; segments:
   return <div className="flex flex-wrap items-center gap-5"><DonutChart size={112} thickness={13} label={`${label}: ${withDisplay.map((segment) => `${segment.label} ${segment.display}`).join(", ")}`} segments={withDisplay} center={<><span className="text-xl font-semibold">{total}</span><span className="text-[11px] text-muted-foreground">{unit}</span></>} /><ChartLegend segments={withDisplay} className="min-w-32 flex-1" /></div>;
 }
 
-function RouteBoundary({ label, caption }: { label: string; caption: string }) {
-  return <div className="flex h-44 w-36 flex-col justify-center rounded-2xl border border-dashed border-border bg-surface p-4"><Icon name="home" size={18} className="text-link" /><p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">{caption}</p><p className="mt-1 truncate font-semibold">{label}</p></div>;
-}
 
-function Connector({ mode }: { mode?: keyof typeof travelModeLabels }) {
-  return <span className="flex shrink-0 items-center gap-1 text-muted-foreground"><span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" /><span title={mode ? travelModeLabels[mode] : "Transporte por planear"} className={`flex size-8 items-center justify-center rounded-full border ${mode ? "border-primary/40 bg-primary-muted text-link" : "border-dashed border-input"}`}><Icon name={mode ? travelModeIcons[mode] : "plus"} size={15} /><span className="sr-only">{mode ? travelModeLabels[mode] : "Transporte por planear"}</span></span><span aria-hidden="true" className="h-px w-3 border-t border-dashed border-input" /></span>;
-}
 
 function Card<T>({ title, icon, href, linkLabel = "Abrir", result, children, className = "" }: { title: string; icon: IconName; href: string; linkLabel?: string; result: SectionResult<T>; children: ReactNode; className?: string }) {
   return <section className={`min-w-0 rounded-card border border-border bg-card p-5 sm:p-6 ${className}`}>
