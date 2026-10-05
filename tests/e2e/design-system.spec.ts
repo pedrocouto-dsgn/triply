@@ -10,7 +10,7 @@ for (const width of [375, 768, 1440]) {
     await expect(page.getByRole("heading", { name: "Orçamento", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Gastos por categoria", exact: true })).toBeVisible();
     await expect(page.getByRole("alert")).toContainText("Não foi possível carregar esta secção");
-    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(17, 19, 21)");
+    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(10, 11, 11)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`catalogue-${width}.png`), fullPage: true });
     expect(errors).toEqual([]);

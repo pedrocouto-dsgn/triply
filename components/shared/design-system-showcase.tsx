@@ -29,9 +29,9 @@ const exampleStop = (position: number, placeName: string, arrivalDate: string, d
 const exampleStops = [exampleStop(1, "Tóquio", "2027-04-03", "2027-04-08"), exampleStop(2, "Quioto", "2027-04-08", "2027-04-13"), exampleStop(3, "Osaka", "2027-04-13", "2027-04-17")];
 
 const palette = [
-  ["Canvas", "#111315", "bg-background"], ["Cartão", "#1c2024", "bg-card"],
-  ["Superfície", "#16191c", "bg-surface"], ["Elevado", "#252a2f", "bg-elevated"],
-  ["Primária", "#c6f432", "bg-primary"], ["Texto", "#f5f7f2", "bg-foreground"],
+  ["Canvas", "#0a0b0b", "bg-background"], ["Cartão", "#141615", "bg-card"],
+  ["Superfície", "#0f1110", "bg-surface"], ["Elevado", "#1b1e1d", "bg-elevated"],
+  ["Primária", "#277b5a → #2f9068", "bg-primary"], ["Texto", "#f2f4f3", "bg-foreground"],
 ] as const;
 const chartPalette = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5", "bg-chart-6", "bg-chart-7"];
 const panel = "rounded-card border border-border bg-card p-5 sm:p-7";
@@ -61,7 +61,7 @@ export function DesignSystemShowcase() {
         <div className="flex min-h-[260px] flex-col justify-end p-6 text-white sm:p-10">
           <p className="w-fit rounded-full border border-white/20 bg-black/35 px-3 py-1 text-xs font-medium backdrop-blur">Triply / Biblioteca visual</p>
           <h1 className="mt-4 text-4xl font-light tracking-tight sm:text-6xl">Design system</h1>
-          <p className="mt-3 max-w-2xl text-white/80">Cinza-carvão e verde-lima, com imagens, gráficos e banners a toda a largura. Simples de ler, fácil de usar.</p>
+          <p className="mt-3 max-w-2xl text-white/80">Preto profundo e verde-esmeralda, com gradientes, efeitos de luz, imagens e gráficos. Simples de ler, fácil de usar.</p>
         </div>
       </DestinationImage>
       <p className="mt-4 text-sm text-warning">Exemplos fictícios · Os dados desta página são apenas demonstrativos.</p>
@@ -69,7 +69,7 @@ export function DesignSystemShowcase() {
 
       <section id="fundamentos" aria-labelledby="foundations-title" className="py-9">
         <h2 id="foundations-title" className="text-2xl font-semibold">01 / Fundamentos</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Superfícies escuras em camadas, um verde-lima de ação e cores de gráfico distintas.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Superfícies escuras em camadas, um verde-esmeralda com brilho para as ações e cores de gráfico distintas.</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{palette.map(([label, value, color]) => <div key={label} className="overflow-hidden rounded-card border border-border"><div aria-hidden="true" className={`h-20 border-b border-border ${color}`} /><div className="p-3"><p className="text-sm font-medium">{label}</p><p className="mt-1 font-mono text-xs text-muted-foreground">{value}</p></div></div>)}</div>
         <div className="mt-3 flex gap-2" aria-label="Cores de gráfico">{chartPalette.map((color) => <span key={color} aria-hidden="true" className={`h-3 flex-1 rounded-full ${color}`} />)}</div>
         <div className={`${panel} mt-6`}><p className="text-xs uppercase tracking-widest text-muted-foreground">Tipografia · Sistema / Inter quando disponível</p><p className="mt-5 text-4xl font-light tracking-tight sm:text-5xl">Planeie a sua <span className="font-semibold">próxima viagem</span></p><p className="mt-4 max-w-xl leading-7 text-muted-foreground">Títulos fortes, texto com espaço para respirar e números fáceis de comparar. Uma viagem pode ter um ou muitos destinos.</p><p className="mt-5 font-mono text-sm text-muted-foreground">4 · 8 · 16 · 24 · 40 px / Raios: 12, 20 e 28 px</p></div>
@@ -110,7 +110,7 @@ export function DesignSystemShowcase() {
         <PageHero bleed={false} seed="Tóquio" headingLevel={2} eyebrow={<><Icon name="calendar" size={14} />3 abr. 2027 — 17 abr. 2027</>} title={exampleTrip.name} meta={<><HeroChip icon="sun">15 dias</HeroChip><HeroChip icon="users">2 viajantes</HeroChip></>} />
         <div className="mt-4"><TripDashboard dashboard={exampleDashboard} today="2026-09-06" /></div>
       </section>
-      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Carvão + verde-lima, inspirado nas referências de layout do projeto.</footer>
+      <footer className="border-t border-border py-6 text-xs text-muted-foreground">Triply · Preto + esmeralda com efeitos de luz, inspirado na referência «cores».</footer>
     </main>
   </AppShell>);
 }

@@ -1,6 +1,6 @@
 # Triply Design System
-Version: 2.1 — Charcoal + lime travel workspace
-Status: Implemented on 2026-10-05. v2.1 (same day, owner request) replaces orange with lime green and follows the "salesforce invoices" reference (`Refs/6483e2cb739e4f9ac22b4310a6d0bdf7.jpg`): charcoal surfaces, lime actions, light-weight large titles, pill tab bar, one light contrast panel. Banners are full width with a bottom gradient into the page; the sidebar can be collapsed. Supersedes v1.0 (Notion dark, 2026-09-07).
+Version: 2.2 — Deep black + emerald, with light effects
+Status: Implemented on 2026-10-05. v2.2 (owner request): colours from `Refs/cores.jpg`. Deep neutral black, emerald green, a soft top highlight on cards, faint green radial glows on the page, and green gradient buttons with a glow. v2.1 (same day, owner request) replaces orange with lime green and follows the "salesforce invoices" reference (`Refs/6483e2cb739e4f9ac22b4310a6d0bdf7.jpg`): charcoal surfaces, lime actions, light-weight large titles, pill tab bar, one light contrast panel. Banners are full width with a bottom gradient into the page; the sidebar can be collapsed. Supersedes v1.0 (Notion dark, 2026-09-07).
 
 ## Direction
 The owner found v1.0 confusing and text-heavy and asked for a more visual, simpler platform: banners, image cards and carousels with image placeholders, donut and other charts. The owner first chose "dark + orange", then asked for green with the layout and colours of the salesforce invoices reference (v2.1).
@@ -19,26 +19,25 @@ Triply keeps its domain rules. Trips stay multi-stop, money labels stay explicit
 ## Semantic tokens
 | Token | Value | Role |
 | --- | --- | --- |
-| background | #111315 | Page canvas |
-| foreground | #f5f7f2 | Primary content |
-| card | #1c2024 | Cards, panels |
-| surface | #16191c | Sidebar, inputs, nested rows |
-| elevated | #252a2f | Active navigation, secondary buttons |
-| muted | #2c3238 | Hover, chart track |
-| muted-foreground | #9ca3ab | Secondary text |
-| primary / primary-hover | #c6f432 / #d6ff5e | Main action (lime) |
-| primary-foreground | #10140a | Text on lime |
-| primary-muted | #263212 | Lime-tinted badges and icons |
-| link | #cdf65a | Inline links |
-| border | #ffffff17 | Structural borders |
-| input | #6b737b | Control borders |
-| ring | #c6f432 | Keyboard focus |
-| light / light-foreground | #f3f5ef / #111315 | Light contrast panel (attention list) |
-| success / success-muted | #4ade80 / #10291a | Completion |
-| warning / warning-muted | #fbbf24 / #2e2410 | Review and attention |
-| destructive / destructive-muted | #ff8a8a / #3a1a1c | Errors |
-| danger / danger-hover / danger-foreground | #c93a40 / #a92f35 / #ffffff | Destructive buttons |
-| chart-1…7 | #c6f432, #fbbf24, #2dd4bf, #60a5fa, #a78bfa, #fb7185, #94a3b8 | Chart series (lime, amber, teal, blue, violet, rose, slate) |
+| background | #0a0b0b + green radial glows | Page canvas (`body`, fixed) |
+| foreground | #f2f4f3 | Primary content |
+| card | #141615 + top highlight gradient | Cards, panels |
+| surface | #0f1110 | Sidebar, inputs, nested rows |
+| elevated | #1b1e1d | Active navigation, secondary buttons |
+| muted | #232726 | Hover, chart track |
+| muted-foreground | #9aa19e | Secondary text |
+| primary / primary-hover | #277b5a / #23704f (rendered as gradient #2f9068 → #22694c) | Main action (emerald) |
+| primary-foreground | #f1fbf6 | Text on emerald (AA) |
+| primary-muted | #10261c | Emerald-tinted badges and icons |
+| link / ring / chart-1 | #5fd3a3 / #4ccf98 / #4ccf98 | Bright emerald accents |
+| border | #ffffff14 | Structural borders |
+| input | #69716e | Control borders |
+| light / light-foreground | #eef3f0 / #0a0b0b | Light contrast panel |
+| success / warning / destructive | #4ade80 / #fbbf24 / #ff8a8a (with muted backgrounds) | States |
+| danger / danger-foreground | #c93a40 / #ffffff | Destructive buttons |
+| chart-2…7 | #fbbf24, #2dd4bf, #60a5fa, #a78bfa, #fb7185, #94a3b8 | Other chart series |
+
+Light effects (globals.css): `.bg-card` gets a 4.5% white top-to-transparent gradient and a 1px inner top highlight; `.bg-primary` is a vertical emerald gradient; primary buttons and links get an inner highlight plus a soft green glow (stronger on hover).
 
 Use semantic utilities. Raw hex values are allowed only inside the illustrated scene palette of `media.tsx`. Information never relies only on colour: every chart has a text legend or label with values. Financial labels stay explicit: estimated, forecast, committed, paid and actual.
 

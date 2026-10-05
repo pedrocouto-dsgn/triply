@@ -46,12 +46,12 @@ function MapLayer({ points, layout, className }: { points: MapPoint[]; layout: L
   return <svg aria-hidden="true" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid slice" className={className}>
     <rect width={width} height={height} fill="#0f1215" />
     <g style={{ filter: "invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6)" }}>{tiles.map((tile) => <image key={`${tile.x}-${tile.y}`} href={tile.href} x={tile.x} y={tile.y} width={TILE} height={TILE} />)}</g>
-    {pins.length > 1 ? <polyline points={pins.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="var(--primary)" strokeWidth={2.5 * scale} strokeDasharray={`${8 * scale} ${7 * scale}`} strokeLinecap="round" strokeLinejoin="round" opacity="0.9" /> : null}
-    {pins.map((pin, index) => <g key={index} transform={`translate(${pin.x} ${pin.y}) scale(${scale * 0.75})`}>
+    {pins.length > 1 ? <polyline points={pins.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="var(--chart-1)" strokeWidth={1.3 * scale} strokeDasharray={`${2.5 * scale} ${3.5 * scale}`} strokeLinecap="round" strokeLinejoin="round" opacity="0.9" /> : null}
+    {pins.map((pin, index) => <g key={index} transform={`translate(${pin.x} ${pin.y}) scale(${scale * 0.55})`}>
       <ellipse cy={1} rx={7} ry={2.5} fill="#000" opacity="0.35" />
-      <path d="M0 0C-2-7-14-13-14-25a14 14 0 1 1 28 0C14-13 2-7 0 0z" fill="var(--primary)" stroke="#111315" strokeWidth={2.5} />
-      <circle cy={-25} r={5.5} fill="#111315" />
-      <text x={18} y={-26} dominantBaseline="central" fontSize={15} fontWeight="600" fill="#f5f7f2" stroke="#111315" strokeWidth={4} paintOrder="stroke">{points[index].label}</text>
+      <path d="M0 0C-2-7-14-13-14-25a14 14 0 1 1 28 0C14-13 2-7 0 0z" fill="var(--chart-1)" stroke="#0a0b0b" strokeWidth={2.5} />
+      <circle cy={-25} r={5.5} fill="#0a0b0b" />
+      <text x={19} y={-25} dominantBaseline="central" fontSize={13} fontWeight="600" fill="#f2f4f3" stroke="#0a0b0b" strokeWidth={3.5} paintOrder="stroke">{points[index].label}</text>
     </g>)}
   </svg>;
 }

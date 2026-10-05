@@ -65,3 +65,6 @@ Pending owner action: apply migration 202610050012 in Supabase.
 - `<body suppressHydrationWarning>` silences the browser-extension attribute mismatch (cz-shortcut-listen) seen in development.
 
 Validation (v2.4): tsc PASS; eslint 0 errors, 14 pre-existing warnings; unit 145/145; build PASS; harness 86/86. E2E: 9/9 on two consecutive runs; one earlier run had a single intermittent `toContainText` timeout during the first dev compile. Checked in the owner's session: sidebar, trips page, route cards, destination page and itinerary filter (Praga shows only 10–14 Nov).
+
+## v2.5 — "cores" palette and light effects (2026-10-05)
+Palette from `Refs/cores.jpg`: deep black, emerald, gradients and glows (see spec 00 v2.2). Map: smaller pins (0.55×), smaller labels, thinner and finer dotted line in the bright emerald. Larger user name in the sidebar.
