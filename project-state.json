@@ -791,6 +791,11 @@
       "date": "2026-10-06",
       "module": "04-budget-expenses / 05-savings-plan",
       "decision": "Owner rule: 'Já temos' is the saved money and changes only when edited; paying expenses spends from it and must not increase it. Spec 04 amended to v1.3 (applies to dashboard/savings progress). Document uploads still refused after migration 015: root cause was unqualified 'name' in storage policies resolving to trips.name; migration 202610060016 recreates trip-documents insert/select and destination-images insert policies with storage.objects.name."
+    },
+    {
+      "date": "2026-10-06",
+      "module": "global",
+      "decision": "Owner reported migration 202610060016 applied."
     }
   ],
   "git_log": [
@@ -930,7 +935,7 @@
       "git_integration": "connected (push to main deploys)",
       "production_url": "https://triply-plum.vercel.app",
       "deployed_at": "2026-10-05",
-      "deployed_commit": "06f96b4",
+      "deployed_commit": "ff56f16",
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL (Production+Preview)",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Production+Preview)",
@@ -1060,7 +1065,8 @@
     },
     "followup": {
       "migration": "supabase/migrations/202610060016_fix_storage_policy_names.sql",
-      "status": "deployed_code_pending_migration"
+      "status": "deployed_production",
+      "migration_applied": "owner reported applied 2026-10-06"
     }
   }
 }
