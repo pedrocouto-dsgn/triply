@@ -105,7 +105,7 @@ function BudgetGlance({ dashboard }: { dashboard: DashboardData }) {
   const forecast = expenseRows(dashboard.finance.data.data).reduce((sum, row) => sum + row.valueMinor, 0n);
   const target = trip.targetBudgetMinor === null ? null : BigInt(trip.targetBudgetMinor);
   const goal = target ?? (forecast > 0n ? forecast : null);
-  const have = calculation ? calculation.currentAvailableMinor + calculation.eligiblePaidMinor : 0n;
+  const have = calculation ? calculation.currentAvailableMinor : 0n;
   const missing = goal === null ? null : goal > have ? goal - have : 0n;
   const percent = goal && goal > 0n ? Math.min(Number((have * 1000n) / goal) / 10, 100) : 0;
   return <div className="flex flex-wrap items-center gap-6">

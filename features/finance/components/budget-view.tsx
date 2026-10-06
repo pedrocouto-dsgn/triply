@@ -17,14 +17,14 @@ const money = (value: bigint | null | undefined, trip: Trip) => value === null |
 export function BudgetSummary({ trip, calculation, forecastMinor }: { trip: Trip; calculation: SavingsCalculation; forecastMinor: bigint }) {
   const target = trip.targetBudgetMinor === null ? null : BigInt(trip.targetBudgetMinor);
   const goal = target ?? (forecastMinor > 0n ? forecastMinor : null);
-  const have = calculation.currentAvailableMinor + calculation.eligiblePaidMinor;
+  const have = calculation.currentAvailableMinor;
   const missing = goal === null ? null : goal > have ? goal - have : 0n;
   const percent = goal && goal > 0n ? Math.min(Number((have * 1000n) / goal) / 10, 100) : 0;
   return <section aria-label="Resumo do orçamento" className="grid gap-4 md:grid-cols-3">
     <InlineValueCard tone="accent" icon="compass" label="Objetivo" value={target === null ? "Definir" : money(target, trip)} currency={trip.baseCurrency} inputValue={minorUnitsToInput(trip.targetBudgetMinor, trip.baseCurrency)} action={updateTargetBudgetAction.bind(null, trip.id)} editLabel="Editar objetivo"
       hint={target === null ? (forecastMinor > 0n ? `Sem objetivo: a usar os gastos previstos (${money(forecastMinor, trip)}).` : "Quanto quer gastar na viagem inteira.") : `Gastos previstos: ${money(forecastMinor, trip)}`} />
     <InlineValueCard icon="piggy" label="Já temos" value={money(have, trip)} currency={trip.baseCurrency} inputValue={minorUnitsToInput(calculation.currentAvailableMinor.toString(), trip.baseCurrency)} action={trip.archivedAt ? undefined : updateSavedFundsAction.bind(null, trip.id)} editLabel="Editar valor guardado"
-      hint={<span className="flex flex-wrap gap-x-3"><span>Guardado: <strong className="font-semibold text-foreground">{money(calculation.currentAvailableMinor, trip)}</strong></span><span>Pago: <strong className="font-semibold text-foreground">{money(calculation.eligiblePaidMinor, trip)}</strong></span></span>} />
+      hint={<span className="flex flex-wrap gap-x-3"><span>Já pago com este valor: <strong className="font-semibold text-foreground">{money(calculation.eligiblePaidMinor, trip)}</strong></span><span>Ainda livre: <strong className="font-semibold text-foreground">{money(have > calculation.eligiblePaidMinor ? have - calculation.eligiblePaidMinor : 0n, trip)}</strong></span></span>} />
     <InlineValueCard icon="wallet" label="Falta" value={missing === null ? "—" : money(missing, trip)} hint={goal === null ? "Defina um objetivo para ver quanto falta." : missing === 0n ? "Objetivo atingido." : `${Math.round(percent)}% do objetivo já está garantido.`}>
       <div aria-hidden="true" className="mt-3 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} /></div>
     </InlineValueCard>

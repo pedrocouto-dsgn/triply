@@ -1,6 +1,6 @@
 # SPEC — Module 04: Budget & Expenses
 
-Version: 1.2  
+Version: 1.3  
 Status: APPROVED
 Module ID: `04-budget-expenses`  
 Depends on: `spec/00-product.md`, `spec/02-trips.md`, `spec/03-destinations-legs.md`, `AGENTS.md`, `docs/adr/ADR-002-money-and-currency.md`  
@@ -1406,3 +1406,7 @@ The next Product specification is:
 - Paid expenses are listed after unpaid ones inside each category.
 - Creating an expense already marked "Já está pago" is idempotent (a retry never duplicates it) and payment dates use the UTC calendar date so they are never ahead of the database date.
 - Travel-leg ticket prices appear automatically as expenses (see Module 03 amendment v1.2).
+
+## Amendment v1.3 — "Já temos" is not increased by payments (owner request, 2026-10-06)
+
+"Já temos" is the money the traveller has set aside for the trip and changes only when they edit it. Marking expenses as paid spends from that money: it is shown as "Já pago com este valor" and "Ainda livre", but never added to "Já temos". "Falta" = objective − "Já temos". The same rule applies to the dashboard and savings progress (spec 05).
