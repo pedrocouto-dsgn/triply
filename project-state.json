@@ -1082,9 +1082,7 @@
       "Trip cards: whole card opens the trip (stretched link); cover button stays on top"
     ],
     "migration": "supabase/migrations/202610110017_trip_cover_image.sql",
-    "pending_owner_actions": [
-      "Apply migration 202610110017_trip_cover_image.sql in Supabase"
-    ],
+    "pending_owner_actions": [],
     "validation": {
       "typecheck": "pass",
       "lint": {
@@ -1105,6 +1103,11 @@
         "failed": 0
       }
     },
-    "status": "validated"
+    "status": "deployed_production",
+    "migration_202610110017_applied": "owner reported applied 2026-10-11",
+    "deployed": {
+      "commit": "32b2925",
+      "url": "https://triply-plum.vercel.app"
+    }
   }
 }
