@@ -2,7 +2,7 @@
   "project": "Triply",
   "version": "0.1",
   "mode": "autonomous_with_gates",
-  "last_updated": "2026-10-06T01:30:00+01:00",
+  "last_updated": "2026-10-11",
   "current_module": "01-auth-onboarding",
   "current_stage": "architecture",
   "status": "code_present_lifecycle_reconciliation_pending",
@@ -796,6 +796,11 @@
       "date": "2026-10-06",
       "module": "global",
       "decision": "Owner reported migration 202610060016 applied."
+    },
+    {
+      "date": "2026-10-11",
+      "decision": "Trip banner becomes its own image, independent from any destination image (owner request).",
+      "by": "owner"
     }
   ],
   "git_log": [
@@ -1068,5 +1073,38 @@
       "status": "deployed_production",
       "migration_applied": "owner reported applied 2026-10-06"
     }
+  },
+  "fixes_2026_10_11": {
+    "requested": "owner 2026-10-11",
+    "items": [
+      "Trip banner independent from destination images (trips.cover_image_path, /trips/[id]/cover upload page; falls back to first destination image)",
+      "Document upload 'O formulário expirou': RequestIdInput defaultValue blanked the hidden key on re-render; removed",
+      "Trip cards: whole card opens the trip (stretched link); cover button stays on top"
+    ],
+    "migration": "supabase/migrations/202610110017_trip_cover_image.sql",
+    "pending_owner_actions": [
+      "Apply migration 202610110017_trip_cover_image.sql in Supabase"
+    ],
+    "validation": {
+      "typecheck": "pass",
+      "lint": {
+        "errors": 0,
+        "warnings": 13
+      },
+      "unit_tests": {
+        "passed": 149,
+        "failed": 0
+      },
+      "build": "pass",
+      "e2e_tests": {
+        "passed": 9,
+        "failed": 0
+      },
+      "harness_tests": {
+        "passed": 86,
+        "failed": 0
+      }
+    },
+    "status": "validated"
   }
 }
