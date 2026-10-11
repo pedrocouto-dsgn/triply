@@ -2,17 +2,17 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/icons";
 import { HeroChip, PageHero } from "@/components/ui/page";
 import type { PlaceImage } from "@/features/media/types";
-import { getTripCovers } from "@/features/route/images";
+import { getTripBanner } from "@/features/route/images";
 import { calendarDaysBetween } from "@/features/savings/calculations";
 import { formatTripDateRange } from "../date";
 import type { Trip } from "../types";
 
 export type TripTab = "overview" | "route" | "finance" | "savings" | "itinerary" | "planning" | "documents" | "settings";
 
-/** The trip's own banner, else the first destination photo, or null for the illustrated fallback. */
+/** The trip's own banner, or null for the illustrated fallback. Never a destination image. */
 export async function getTripCover(tripId: string): Promise<PlaceImage | null> {
   try {
-    return (await getTripCovers([tripId]))[tripId] ?? null;
+    return await getTripBanner(tripId);
   } catch {
     return null;
   }

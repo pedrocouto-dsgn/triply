@@ -7,7 +7,7 @@ import { geocodeStops, type Coordinates } from "@/features/media/geocode";
 import { RouteOverview } from "@/features/route/components/overview";
 import { RouteStatus } from "@/features/route/components/status";
 import type { PlaceImage } from "@/features/media/types";
-import { getTripCoverWithFallback, resolveStopImages } from "@/features/route/images";
+import { getTripBanner, resolveStopImages } from "@/features/route/images";
 import { getOwnedRoute } from "@/features/route/queries";
 import { TripHero } from "@/features/trips/components/trip-hero";
 import { getOwnedTrip } from "@/features/trips/queries";
@@ -19,7 +19,7 @@ export default async function RoutePage({ params, searchParams }: { params: Prom
   const [trip, route] = await Promise.all([getOwnedTrip(tripId), getOwnedRoute(tripId)]);
   if (!trip || !route) notFound();
   const images = await resolveStopImages(route.stops).catch((): Record<string, PlaceImage> => ({}));
-  const cover = await getTripCoverWithFallback(tripId, route.stops[0] ? images[route.stops[0].id] ?? null : null);
+  const cover = await getTripBanner(tripId);
   const ordered = [...route.stops].sort((a, b) => a.position - b.position);
   const coordinates = await geocodeStops(ordered).catch((): Record<string, Coordinates> => ({}));
   const points = ordered.map((stop, index) => ({ stop, number: index + 1 })).filter(({ stop }) => coordinates[stop.id]).map(({ stop, number }) => ({ ...coordinates[stop.id], label: stop.placeName, number }));

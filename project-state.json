@@ -1079,7 +1079,8 @@
     "items": [
       "Trip banner independent from destination images (trips.cover_image_path, /trips/[id]/cover upload page; falls back to first destination image)",
       "Document upload 'O formulário expirou': RequestIdInput defaultValue blanked the hidden key on re-render; removed",
-      "Trip cards: whole card opens the trip (stretched link); cover button stays on top"
+      "Trip cards: whole card opens the trip (stretched link); cover button stays on top",
+      "Follow-up: trip banner no longer falls back to the first destination image; without its own upload it shows the illustration (trip list cards keep the destination fallback)"
     ],
     "migration": "supabase/migrations/202610110017_trip_cover_image.sql",
     "pending_owner_actions": [],

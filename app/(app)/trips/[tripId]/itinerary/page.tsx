@@ -7,7 +7,7 @@ import { ItineraryOverview, ItineraryTimeline } from "@/features/itinerary/compo
 import { buildTripDays } from "@/features/itinerary/days";
 import { listOwnedItinerary } from "@/features/itinerary/queries";
 import type { PlaceImage } from "@/features/media/types";
-import { getTripCoverWithFallback, resolveStopImages } from "@/features/route/images";
+import { getTripBanner, resolveStopImages } from "@/features/route/images";
 import { getOwnedRoute } from "@/features/route/queries";
 import { TripHero } from "@/features/trips/components/trip-hero";
 import { getOwnedTrip } from "@/features/trips/queries";
@@ -18,7 +18,7 @@ export default async function ItineraryPage({ params, searchParams }: PageProps<
   const [{ tripId }, query] = await Promise.all([params, searchParams]), [trip, route, items] = await Promise.all([getOwnedTrip(tripId), getOwnedRoute(tripId), listOwnedItinerary(tripId)]);
   if (!trip || !route || !items) notFound();
   const images = await resolveStopImages(route.stops).catch((): Record<string, PlaceImage> => ({}));
-  const cover = await getTripCoverWithFallback(tripId, route.stops[0] ? images[route.stops[0].id] ?? null : null);
+  const cover = await getTripBanner(tripId);
   const days = buildTripDays(trip, route.stops, items, route.legs), outside = items.filter((item) => item.tripDate < trip.startDate || item.tripDate > trip.endDate);
   return <PageContainer width="medium" hero={<TripHero trip={trip} active="itinerary" cover={cover} title="Itinerário" description={`${days.length} dia(s), com horas locais, atividades flexíveis e transportes projetados da rota.`} />}>
     {first(query.saved) || first(query.moved) || first(query.reordered) || first(query.deleted) ? <div className="mt-4"><Notice tone="success">Itinerário atualizado.</Notice></div> : null}

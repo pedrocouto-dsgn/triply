@@ -56,7 +56,7 @@ export async function getTripCoverUploads(tripIds: string[]): Promise<Record<str
   return result;
 }
 
-/** Trip banner: the trip's own upload first, otherwise the first destination's image. */
+/** Trip list card cover: the trip's own upload first, otherwise the first destination's image. */
 export async function getTripCovers(tripIds: string[]): Promise<Record<string, PlaceImage>> {
   if (!tripIds.length) return {};
   const uploads = await getTripCoverUploads(tripIds).catch((): Record<string, PlaceImage> => ({}));
@@ -71,8 +71,8 @@ export async function getTripCovers(tripIds: string[]): Promise<Record<string, P
   return { ...uploads, ...Object.fromEntries([...first.entries()].filter(([, stop]) => images[stop.id]).map(([tripId, stop]) => [tripId, images[stop.id]])) };
 }
 
-/** One trip's banner when the first destination's image is already resolved by the page. */
-export async function getTripCoverWithFallback(tripId: string, firstStopImage: PlaceImage | null): Promise<PlaceImage | null> {
+/** One trip's banner: only its own upload, never a destination image (null = illustrated fallback). */
+export async function getTripBanner(tripId: string): Promise<PlaceImage | null> {
   const uploads = await getTripCoverUploads([tripId]).catch((): Record<string, PlaceImage> => ({}));
-  return uploads[tripId] ?? firstStopImage;
+  return uploads[tripId] ?? null;
 }
